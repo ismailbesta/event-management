@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Past;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,8 +24,8 @@ public class Event {
     private String description;
     @Column(name = "event_date")
     private LocalDate date;
-    @Column(length = 10, name = "event_time")
-    private String time;
+    @Column(name = "event_time")
+    private LocalTime time;
     @Column(length = 200)
     private String location;
 

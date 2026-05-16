@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,8 +23,8 @@ public class UserService {
     private final HttpServletRequest request;
 
     public ResponseEntity register(UserRegisterRequestDto userRegisterRequestDto) {
-        User user = userRepository.findByEmailEqualsIgnoreCase(userRegisterRequestDto.getEmail());
-        if (user != null) {
+        Optional<User> optionalUser = userRepository.findByEmailEqualsIgnoreCase(userRegisterRequestDto.getEmail());
+        if (optionalUser.isPresent()) {
             Map<String, Object> response = Map.of(
                     "success", false,
                     "message", "This email is already registered."
@@ -39,12 +40,13 @@ public class UserService {
     }
 
     public ResponseEntity Login(UserLoginRequestDto userLoginRequestDto){
-        User user = userRepository.findByEmailEqualsIgnoreCase(userLoginRequestDto.getEmail());
-        if (user != null) {
+        Optional<User> optionalUser = userRepository.findByEmailEqualsIgnoreCase(userLoginRequestDto.getEmail());
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
             boolean isMatch = BCrypt.checkpw(userLoginRequestDto.getPassword(), user.getPassword());
             if (isMatch) {
+                request.getSession().setAttribute("user", user);
                 UserResponseDto userResponseDto = model.map(user, UserResponseDto.class);
-                request.getSession().setAttribute("user", userResponseDto);
                 return ResponseEntity.ok(userResponseDto);
             }
         }
@@ -57,7 +59,10 @@ public class UserService {
 
     public ResponseEntity logout(){
         request.getSession().invalidate();
-        Map<String, Object> hm = Map.of("success", true, "message", "Logout successful.");
+        Map<String, Object> hm = Map.of(
+                "success", true,
+                "message", "Logout successful."
+        );
         return ResponseEntity.ok().body(hm);
     }
 }

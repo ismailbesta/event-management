@@ -8,6 +8,7 @@ import lombok.Value;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 /**
  * DTO for {@link Event}
@@ -18,7 +19,7 @@ public class EventResponseDto{
     String name;
     String description;
     LocalDate date;
-    String time;
+    LocalTime time;
     String location;
     EventCategory category;
     EventStatus status;

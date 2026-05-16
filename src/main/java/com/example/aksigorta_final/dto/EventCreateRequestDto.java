@@ -6,10 +6,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import lombok.Value;
 
-import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 /**
  * DTO for {@link com.example.aksigorta_final.entity.Event}
@@ -25,9 +24,8 @@ public class EventCreateRequestDto{
     @NotNull
     @FutureOrPresent
     LocalDate date;
-    @Size(min = 4, max = 10)
-    @NotBlank
-    String time;
+    @NotNull
+    LocalTime time;
     @Size(min = 1, max = 100)
     @NotBlank
     String location;
