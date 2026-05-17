@@ -32,7 +32,7 @@ public class EventRestController {
         return eventService.joinEvent(eventId, sessionUser);
     }
 
-    @PostMapping("publish/{eventId}")
+    @PatchMapping("publish/{eventId}")
     public ResponseEntity publishEvent(@PathVariable Long eventId, HttpServletRequest request){
         User sessionUser = (User) request.getSession().getAttribute("user");
         return eventService.publishEvent(eventId, sessionUser);
@@ -43,7 +43,7 @@ public class EventRestController {
         return eventService.eventList(page);
     }
 
-    @GetMapping("get/{eventId}")
+    @GetMapping("/{eventId}")
     public ResponseEntity getEventById(@PathVariable Long eventId, HttpServletRequest request){
         User sessionUser = (User) request.getSession().getAttribute("user");
         return eventService.getEventById(eventId, sessionUser);
@@ -55,10 +55,43 @@ public class EventRestController {
         return eventService.listMyEvents(page, sessionUser);
     }
 
-    @PostMapping("cancel")
-    public ResponseEntity cancelEvent(@RequestParam Long eventId, HttpServletRequest request){
+    @PatchMapping("cancel/{eventId}")
+    public ResponseEntity cancelEvent(@PathVariable Long eventId, HttpServletRequest request){
         User sessionUser = (User) request.getSession().getAttribute("user");
         return eventService.cancelEvent(eventId, sessionUser);
+    }
+
+    @PostMapping("leave/{eventId}")
+    public ResponseEntity leaveEvent(@PathVariable Long eventId, HttpServletRequest request){
+        User sessionUser = (User) request.getSession().getAttribute("user");
+        return eventService.leaveEvent(eventId, sessionUser);
+    }
+
+    @GetMapping("joined-events")
+    public Page<EventResponseDto> listJoinedEvents(@RequestParam(defaultValue = "0") int page, HttpServletRequest request){
+        User sessionUser = (User) request.getSession().getAttribute("user");
+        return eventService.listJoinedEvents(page, sessionUser);
+    }
+
+    @GetMapping("search")
+    public Page<EventResponseDto> search(
+            @RequestParam(defaultValue = "") String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "asc")String startDate
+    ){
+        return eventService.search(q, page, startDate);
+    }
+
+    @PatchMapping("unpublish/{eventId}")
+    public ResponseEntity unpublishEvent(@PathVariable Long eventId, HttpServletRequest request){
+        User sessionUser = (User) request.getSession().getAttribute("user");
+        return eventService.unpublishEvent(eventId, sessionUser);
+    }
+
+    @GetMapping("participants/{eventId}")
+    public ResponseEntity getEventParticipants(@PathVariable Long eventId, HttpServletRequest request){
+        User sessionUser = (User) request.getSession().getAttribute("user");
+        return eventService.getEventParticipants(eventId, sessionUser);
     }
 
 }

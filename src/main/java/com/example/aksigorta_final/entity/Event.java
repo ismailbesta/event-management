@@ -22,10 +22,15 @@ public class Event {
     private String name;
     @Column(length = 1000)
     private String description;
-    @Column(name = "event_date")
-    private LocalDate date;
-    @Column(name = "event_time")
-    private LocalTime time;
+
+    private LocalDate startDate;
+
+    private LocalDate endDate;
+
+    private LocalTime startTime;
+
+    private LocalTime endTime;
+
     @Column(length = 200)
     private String location;
 

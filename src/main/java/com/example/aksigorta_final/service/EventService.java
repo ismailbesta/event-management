@@ -2,6 +2,7 @@ package com.example.aksigorta_final.service;
 
 import com.example.aksigorta_final.dto.EventCreateRequestDto;
 import com.example.aksigorta_final.dto.EventResponseDto;
+import com.example.aksigorta_final.dto.ParticipantResponseDto;
 import com.example.aksigorta_final.entity.Event;
 import com.example.aksigorta_final.entity.User;
 import com.example.aksigorta_final.repository.EventRepository;
@@ -9,7 +10,9 @@ import com.example.aksigorta_final.util.EventStatus;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -23,6 +26,22 @@ public class EventService {
     private final ModelMapper model;
 
     public ResponseEntity createEvent(EventCreateRequestDto eventCreateRequestDto, User sessionUser){
+
+        if (eventCreateRequestDto.getEndDate().isBefore(eventCreateRequestDto.getStartDate())) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "Error: The end date cannot be before the start date."
+            ));
+        }
+        if (eventCreateRequestDto.getEndDate().isEqual(eventCreateRequestDto.getStartDate())) {
+            if (eventCreateRequestDto.getEndTime().isBefore(eventCreateRequestDto.getStartTime())) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "success", false,
+                        "message", "Error: For single-day events, the end time cannot be before the start time."
+                ));
+            }
+        }
+
         Event newEvent = model.map(eventCreateRequestDto, Event.class);
         newEvent.setOwner(sessionUser);
         newEvent.getParticipants().add(sessionUser);
@@ -239,7 +258,163 @@ public class EventService {
                 "message", "Event canceled successfully.",
                 "eventId", eventId
         );
+        return ResponseEntity.ok().body(response);
+    }
+
+    public ResponseEntity leaveEvent(Long eventId, User sessionUser) {
+        Optional<Event> optionalEvent = eventRepository.findById(eventId);
+        if (optionalEvent.isEmpty()) {
+            Map<String, Object> response = Map.of(
+                    "success", false,
+                    "message", "Event not found",
+                    "eventId", eventId
+            );
+            return ResponseEntity.status(404).body(response);
+        }
+
+        Event event = optionalEvent.get();
+        if (!event.getParticipants().contains(sessionUser)) {
+            Map<String, Object> response = Map.of(
+                    "success", false,
+                    "message", "You are not a participant of this event.",
+                    "eventId", eventId
+            );
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        if (event.getOwner().getId().equals(sessionUser.getId())) {
+            Map<String, Object> response = Map.of(
+                    "success", false,
+                    "message", "As the owner of the event, you cannot leave it. You can cancel the event instead.",
+                    "eventId", eventId
+            );
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        event.getParticipants().remove(sessionUser);
+        eventRepository.save(event);
+        Map<String, Object> response = Map.of(
+                "success", true,
+                "message", "You have successfully left the event.",
+                "eventId", eventId
+        );
+        return ResponseEntity.ok().body(response);
+    }
+
+    public Page<EventResponseDto> listJoinedEvents(int page, User sessionUser) {
+        Pageable pageable = Pageable.ofSize(10).withPage(page);
+        Page<Event> eventPage = eventRepository.findByParticipantsIn(List.of(sessionUser), pageable);
+        return eventPage.map(event -> {
+            EventResponseDto eventResponseDto = model.map(event, EventResponseDto.class);
+            eventResponseDto.setOwnerFullName(event.getOwner().getName() + " " + event.getOwner().getSurname());
+            eventResponseDto.setParticipantCount(event.getParticipants().size());
+            return eventResponseDto;
+        });
+    }
+
+    public Page<EventResponseDto> search(String query, int page, String startDate){
+        Sort sort = startDate.equals("desc") ? Sort.by(Sort.Direction.DESC, "startDate") : Sort.by(Sort.Direction.ASC, "startDate");
+        Pageable pageable = PageRequest.of(page, 10, sort);
+
+        List<EventStatus> visibleStatuses = List.of(
+                EventStatus.PUBLISHED,
+                EventStatus.ONGOING
+        );
+
+        Page<Event> eventPage = eventRepository.searchVisibleEvents(query, visibleStatuses, pageable);
+        return eventPage.map(event -> {
+            EventResponseDto eventResponseDto = model.map(event, EventResponseDto.class);
+            eventResponseDto.setOwnerFullName(event.getOwner().getName() + " " + event.getOwner().getSurname());
+            eventResponseDto.setParticipantCount(event.getParticipants().size());
+            return eventResponseDto;
+        });
+    }
+
+    public ResponseEntity unpublishEvent(Long eventId, User sessionUser){
+        Optional<Event> optionalEvent = eventRepository.findById(eventId);
+        if (optionalEvent.isEmpty()) {
+            Map<String, Object> response = Map.of(
+                    "success", false,
+                    "message", "Event not found",
+                    "eventId", eventId
+            );
+            return ResponseEntity.status(404).body(response);
+        }
+
+        Event event = optionalEvent.get();
+
+        if (event.getParticipants().size() > 1) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "Error: You cannot unpublish an event that already has participants. Please cancel it instead.",
+                    "eventId", eventId
+            ));
+        }
+
+        if (!event.getOwner().getId().equals(sessionUser.getId())) {
+            Map<String, Object> response = Map.of(
+                    "success", false,
+                    "message", "Unauthorized: You do not have permission to unpublish this event.",
+                    "eventId", eventId
+            );
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }
+
+        if (event.getStatus() == EventStatus.PLANNED) {
+            Map<String, Object> response = Map.of(
+                    "success", false,
+                    "message", "Error: This event is already unpublished.",
+                    "eventId", eventId
+            );
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        if (event.getStatus() != EventStatus.PUBLISHED) {
+            Map<String, Object> response = Map.of(
+                    "success", false,
+                    "message", "Error: Only events with 'PUBLISHED' status can be unpublished.",
+                    "eventId", eventId
+            );
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        event.setStatus(EventStatus.PLANNED);
+        eventRepository.save(event);
+        Map<String, Object> response = Map.of(
+                "success", true,
+                "message", "Event unpublished successfully.",
+                "eventId", eventId
+        );
         return ResponseEntity.ok(response);
     }
 
+    public ResponseEntity getEventParticipants(Long eventId, User sessionUser) {
+        Optional<Event> optionalEvent = eventRepository.findById(eventId);
+        if (optionalEvent.isEmpty()) {
+            Map<String, Object> response = Map.of(
+                    "success", false,
+                    "message", "Event not found",
+                    "eventId", eventId
+            );
+            return ResponseEntity.status(404).body(response);
+        }
+
+        Event event = optionalEvent.get();
+        if (!event.getOwner().getId().equals(sessionUser.getId())) {
+            Map<String, Object> response = Map.of(
+                    "success", false,
+                    "message", "Unauthorized: You do not have permission to view the participants of this event.",
+                    "eventId", eventId
+            );
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }
+
+        List<User> participants = event.getParticipants();
+
+        List<ParticipantResponseDto> participantDtos = participants.stream()
+                .map(user -> model.map(user, ParticipantResponseDto.class))
+                .toList();
+
+        return ResponseEntity.ok().body(participantDtos);
+    }
 }

@@ -18,8 +18,10 @@ public class EventResponseDto{
     Long id;
     String name;
     String description;
-    LocalDate date;
-    LocalTime time;
+    LocalDate startDate;
+    LocalDate endDate;
+    LocalTime startTime;
+    LocalTime endTime;
     String location;
     EventCategory category;
     EventStatus status;

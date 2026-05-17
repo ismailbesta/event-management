@@ -1,7 +1,7 @@
 package com.example.aksigorta_final.util;
 
 public enum EventStatus {
-    PLANNED,        // Etkinlik planlandı, henüz yayına alınmadı veya tarihi bekleniyor
+    PLANNED,        // Etkinlik planlandı, henüz yayına alınmadı
     PUBLISHED,      // Etkinlik yayında ve kullanıcılar katılım sağlayabilir
     ONGOING,        // Etkinlik şu anda gerçekleşiyor (saati geldi)
     COMPLETED,      // Etkinlik başarıyla tamamlandı

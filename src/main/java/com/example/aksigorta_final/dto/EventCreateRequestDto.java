@@ -1,10 +1,7 @@
 package com.example.aksigorta_final.dto;
 
 import com.example.aksigorta_final.util.EventCategory;
-import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -23,9 +20,14 @@ public class EventCreateRequestDto{
     String description;
     @NotNull
     @FutureOrPresent
-    LocalDate date;
+    LocalDate startDate;
     @NotNull
-    LocalTime time;
+    @Future
+    LocalDate endDate;
+    @NotNull
+    LocalTime startTime;
+    @NotNull
+    LocalTime endTime;
     @Size(min = 1, max = 100)
     @NotBlank
     String location;
