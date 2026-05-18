@@ -8,6 +8,7 @@ import com.example.aksigorta_final.entity.Event;
 import com.example.aksigorta_final.entity.User;
 import com.example.aksigorta_final.service.EventService;
 import com.example.aksigorta_final.util.EventCategory;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.Data;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("event")
+@Tag(name = "Event", description = "Event management operations")
 public class EventRestController {
     private final EventService eventService;
 

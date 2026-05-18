@@ -10,10 +10,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.aksigorta_final.dto.UserRegisterRequestDto;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("user")
+@Tag(name = "User", description = "Authentication and user session operations")
 public class UserRestController {
 
     private final UserService userService;

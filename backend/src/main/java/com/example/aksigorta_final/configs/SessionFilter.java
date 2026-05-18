@@ -28,6 +28,11 @@ public class SessionFilter implements Filter {
         String[] freeUrls = {
                 "/user/login",
                 "/user/register",
+                "/swagger-ui",
+                "/swagger-ui/",
+                "/swagger-ui.html",
+                "/v3/api-docs",
+                "/v3/api-docs/"
         };
 
         boolean isAuth = true;
