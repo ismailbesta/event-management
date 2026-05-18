@@ -39,7 +39,7 @@ public class UserService {
         return ResponseEntity.ok(userResponseDto);
     }
 
-    public ResponseEntity Login(UserLoginRequestDto userLoginRequestDto){
+    public ResponseEntity login(UserLoginRequestDto userLoginRequestDto){
         Optional<User> optionalUser = userRepository.findByEmailEqualsIgnoreCase(userLoginRequestDto.getEmail());
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();

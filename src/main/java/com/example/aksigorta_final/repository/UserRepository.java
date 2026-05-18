@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmailEqualsIgnoreCase(String email);
 
+    Page<User> findByJoinedEvents_Id(Long id, Pageable pageable);
 }

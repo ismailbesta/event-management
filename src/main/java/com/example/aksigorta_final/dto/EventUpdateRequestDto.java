@@ -3,7 +3,9 @@ package com.example.aksigorta_final.dto;
 import com.example.aksigorta_final.util.EventCategory;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import lombok.Value;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -11,7 +13,11 @@ import java.time.LocalTime;
  * DTO for {@link com.example.aksigorta_final.entity.Event}
  */
 @Data
-public class EventCreateRequestDto{
+public class EventUpdateRequestDto{
+    @NotNull
+    @Min(1)
+    @Max(Long.MAX_VALUE)
+    Long id;
     @Size(min = 1, max = 200)
     @NotBlank
     String name;

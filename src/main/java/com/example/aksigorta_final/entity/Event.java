@@ -38,7 +38,7 @@ public class Event {
     private EventCategory category = EventCategory.GENERAL;
 
     @Enumerated(EnumType.STRING)
-    private EventStatus status = EventStatus.PLANNED;
+    private EventStatus status = EventStatus.PUBLISHED;
 
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)

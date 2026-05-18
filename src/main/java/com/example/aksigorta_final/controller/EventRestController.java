@@ -2,10 +2,12 @@ package com.example.aksigorta_final.controller;
 
 import com.example.aksigorta_final.dto.EventCreateRequestDto;
 import com.example.aksigorta_final.dto.EventResponseDto;
+import com.example.aksigorta_final.dto.EventUpdateRequestDto;
 import com.example.aksigorta_final.dto.UserResponseDto;
 import com.example.aksigorta_final.entity.Event;
 import com.example.aksigorta_final.entity.User;
 import com.example.aksigorta_final.service.EventService;
+import com.example.aksigorta_final.util.EventCategory;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.Data;
@@ -89,9 +91,39 @@ public class EventRestController {
     }
 
     @GetMapping("participants/{eventId}")
-    public ResponseEntity getEventParticipants(@PathVariable Long eventId, HttpServletRequest request){
+    public ResponseEntity getEventParticipants(
+            @PathVariable Long eventId,
+            @RequestParam(defaultValue = "0") int page,
+            HttpServletRequest request
+    ){
         User sessionUser = (User) request.getSession().getAttribute("user");
-        return eventService.getEventParticipants(eventId, sessionUser);
+        return eventService.getEventParticipants(page, eventId, sessionUser);
     }
 
+    @PutMapping("update")
+    public ResponseEntity updateEvent(@Valid @RequestBody EventUpdateRequestDto eventUpdateRequestDto, HttpServletRequest request){
+        User sessionUser = (User) request.getSession().getAttribute("user");
+        return eventService.updateEvent(eventUpdateRequestDto, sessionUser);
+    }
+
+    @GetMapping("category/{categoryName}")
+    public ResponseEntity getEventsByCategory(
+            @PathVariable String categoryName,
+            @RequestParam(defaultValue = "0") int page) {
+        EventCategory category = EventCategory.valueOf(categoryName.toUpperCase());
+        Page<EventResponseDto> response = eventService.listEventByCategory(category, page);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PatchMapping("archive/{eventId}")
+    public ResponseEntity archiveEvent(@PathVariable Long eventId, HttpServletRequest request){
+        User sessionUser = (User) request.getSession().getAttribute("user");
+        return eventService.archiveEvent(eventId, sessionUser);
+    }
+
+    @GetMapping("archived-events")
+    public Page<EventResponseDto> listArchivedEvents(@RequestParam(defaultValue = "0") int page, HttpServletRequest request){
+        User sessionUser = (User) request.getSession().getAttribute("user");
+        return eventService.listMyArchivedEvents(page, sessionUser);
+    }
 }

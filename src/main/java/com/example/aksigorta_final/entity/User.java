@@ -4,6 +4,9 @@ import com.example.aksigorta_final.util.UserStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Data
 @Table(name = "users")
@@ -28,4 +31,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserStatus status = UserStatus.ACTIVE;
+
+    @ManyToMany(mappedBy = "participants")
+    private List<Event> joinedEvents = new ArrayList<>();
 }

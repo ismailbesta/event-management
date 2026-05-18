@@ -25,7 +25,7 @@ public class UserRestController {
 
     @PostMapping("login")
     public ResponseEntity login(@Valid @RequestBody UserLoginRequestDto userLoginRequestDto){
-        return userService.Login(userLoginRequestDto);
+        return userService.login(userLoginRequestDto);
     }
 
     @PostMapping("logout")
