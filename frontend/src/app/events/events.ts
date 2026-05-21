@@ -19,13 +19,10 @@ export class Events implements OnInit {
   activePage = signal<number>(0);
   loading = signal<boolean>(false);
 
-  // YENİ EKLENEN FİLTRE SIGNAL'İ
   activeCategory = signal<string | null>(null);
 
-  // YENİ: KATEGORİLERİ GİZLE/GÖSTER DURUMU
   showAllCategories = signal<boolean>(false);
 
-  // YENİ: "..." BUTONUNA TIKLANINCA ÇALIŞACAK METOT
   toggleCategories() {
     this.showAllCategories.update((show) => !show);
   }
@@ -45,7 +42,6 @@ export class Events implements OnInit {
     this.activePage.set(page);
     this.loading.set(true);
 
-    // YENİ EKLENEN DİNAMİK URL MANTIĞI
     const currentCategory = this.activeCategory();
     const endpoint = currentCategory
       ? `http://localhost:8080/event/category/${currentCategory}?page=${page}`
@@ -65,10 +61,9 @@ export class Events implements OnInit {
     });
   }
 
-  // YENİ EKLENEN FİLTRELEME METODU
   filterByCategory(category: string | null) {
     this.activeCategory.set(category);
-    this.loadEvents(0); // Filtre değiştiğinde 1. sayfaya dön
+    this.loadEvents(0);
   }
 
   fetchRolesForEvents(events: Event[]) {
@@ -80,7 +75,7 @@ export class Events implements OnInit {
         }>(`http://localhost:8080/event/user-role/${event.id}`, { withCredentials: true })
         .subscribe({
           next: (res) => this.updateRole(event.id, res.role),
-          error: () => this.updateRole(event.id, 'GUEST'), // DÜZELTME: Eskiden LOADING'te kalıyordu, GUEST olmalı.
+          error: () => this.updateRole(event.id, 'GUEST'),
         });
     });
   }

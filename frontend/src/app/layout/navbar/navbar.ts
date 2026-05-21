@@ -1,25 +1,24 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, ChangeDetectorRef } from '@angular/core';
-import { Router, RouterModule } from '@angular/router'; // Router eklendi
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // ngModel için eklendi
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-navbar',
-  imports: [RouterModule, CommonModule, FormsModule], // FormsModule eklendi
+  imports: [RouterModule, CommonModule, FormsModule],
   templateUrl: './navbar.html',
   styleUrls: ['./navbar.css'],
 })
 export class Navbar {
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
-  private router = inject(Router); // Router inject edildi
+  private router = inject(Router);
 
   globalName = 'Guest';
   showLogoutModal = false;
   showLogoutError = false;
 
-  // YENİ: Arama metnini tutacak değişken
   searchQuery = '';
 
   constructor() {
@@ -29,9 +28,7 @@ export class Navbar {
     }
   }
 
-  // YENİ: Arama formunu tetikleyen metot
-  onSearch(event: Event) {
-    event.preventDefault(); // Sayfanın yenilenmesini engeller
+  onSearch() {
     if (this.searchQuery.trim()) {
       this.router.navigate(['/search'], { queryParams: { q: this.searchQuery.trim() } });
     }

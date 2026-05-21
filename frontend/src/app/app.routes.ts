@@ -11,6 +11,7 @@ import { MyEvents } from './my-events/my-events';
 import { JoinedEvents } from './joined-events/joined-events';
 import { ArchivedEvents } from './archived-events/archived-events';
 import { EventEdit } from './event-edit/event-edit';
+import { EventSearch } from './event-search/event-search';
 
 export const routes: Routes = [
   { path: 'register', component: Register, canActivate: [notAuthGuard] },
@@ -28,6 +29,7 @@ export const routes: Routes = [
       { path: 'joined-events', component: JoinedEvents },
       { path: 'archived-events', component: ArchivedEvents },
       { path: 'events/edit/:id', component: EventEdit },
+      { path: 'search', component: EventSearch },
     ],
   },
   { path: '**', redirectTo: 'events' },
