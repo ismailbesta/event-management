@@ -2,10 +2,9 @@
   <div class="container">
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
       <div>
-        <p class="text-uppercase text-body-secondary small mb-1 fw-semibold">Yönetim Paneli</p>
         <h1 class="display-6 fw-semibold mb-1">Arşivlenmiş Etkinlikler</h1>
         <p class="text-body-secondary mb-0">
-          Geçmişte kalan veya arşivlediğin etkinliklerin listesi.
+          Arşivlenmiş etkinliklere sizden başka kimse ulaşamaz.
         </p>
       </div>
 
@@ -34,7 +33,39 @@
     @if (eventArray().length > 0) {
       <div class="d-grid gap-4">
         @for (event of eventArray(); track event.id) {
-          <div class="card shadow-sm position-relative event-card border-0">
+          <div
+            class="card shadow-sm position-relative event-card"
+            [ngClass]="{
+              'border-0': event.status === 'PUBLISHED',
+              'border border-success border-2': event.status === 'ONGOING',
+              'border border-warning border-2': event.status === 'UNPUBLISHED',
+              'border border-primary border-2': event.status === 'COMPLETED',
+              'border border-danger border-2': event.status === 'CANCELED',
+              'border border-dark border-2': event.status === 'TIMEOUT',
+              'border border-secondary border-2': event.status === 'ARCHIVED',
+            }"
+          >
+            <button
+              class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-3 z-3 bg-white"
+              style="
+                border-radius: 50%;
+                width: 35px;
+                height: 35px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
+              [disabled]="actionLoading[event.id]"
+              (click)="$event.stopPropagation(); openDeleteModal(event.id)"
+              title="Etkinliği Kalıcı Olarak Sil"
+            >
+              @if (actionLoading[event.id]) {
+                <span class="spinner-border spinner-border-sm"></span>
+              } @else {
+                <i class="bi bi-trash"></i>
+              }
+            </button>
+
             <div class="card-body p-4">
               <a
                 class="stretched-link"
@@ -50,7 +81,7 @@
                       {{ statusLabel(event.status) }}
                     </span>
                   </div>
-                  <h3 class="h4 mb-2 text-secondary">{{ event.name }}</h3>
+                  <h3 class="h4 mb-2 text-secondary pe-5">{{ event.name }}</h3>
                   <p class="text-secondary mb-4">{{ event.description }}</p>
 
                   <div class="d-flex flex-wrap gap-4 text-secondary small mt-auto">
@@ -103,3 +134,38 @@
     }
   </div>
 </section>
+
+@if (showDeleteModal()) {
+  <div class="modal show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.5)">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header border-bottom-0">
+          <h5 class="modal-title text-danger fw-bold">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> Etkinliği Sil
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            (click)="closeDeleteModal()"
+            aria-label="Kapat"
+          ></button>
+        </div>
+        <div class="modal-body pt-0">
+          <p class="mb-0 text-secondary">
+            Bu etkinliği kalıcı olarak silmek istediğinize emin misiniz?
+            <strong
+              >Bu işlem kesinlikle geri alınamaz ve etkinliğe dair tüm veriler (katılımcılar dahil)
+              sistemden silinir.</strong
+            >
+          </p>
+        </div>
+        <div class="modal-footer border-top-0">
+          <button type="button" class="btn btn-light" (click)="closeDeleteModal()">Vazgeç</button>
+          <button type="button" class="btn btn-danger px-4" (click)="confirmDelete()">
+            Evet, Kalıcı Olarak Sil
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

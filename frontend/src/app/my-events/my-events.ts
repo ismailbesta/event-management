@@ -19,12 +19,12 @@ export class MyEvents implements OnInit {
   activePage = signal<number>(0);
   loading = signal<boolean>(false);
 
-  // Butonlara tıklandığında dönecek spinner'lar için
   actionLoading: { [key: number]: boolean } = {};
 
   // MODAL YÖNETİMİ İÇİN SİNYALLER
   showCancelModal = signal<boolean>(false);
   showArchiveModal = signal<boolean>(false);
+  showDeleteModal = signal<boolean>(false);
   selectedEventId = signal<number | null>(null);
 
   ngOnInit() {
@@ -72,7 +72,7 @@ export class MyEvents implements OnInit {
       });
   }
 
-  // --- İPTAL ETME MODAL METOTLARI ---
+  // --- İPTAL ETME MODALI ---
   openCancelModal(eventId: number) {
     this.selectedEventId.set(eventId);
     this.showCancelModal.set(true);
@@ -88,7 +88,7 @@ export class MyEvents implements OnInit {
     if (eventId === null) return;
 
     this.actionLoading[eventId] = true;
-    this.closeCancelModal(); // İşlem başlarken modalı hemen kapatıyoruz
+    this.closeCancelModal();
 
     this.http
       .patch(`http://localhost:8080/event/cancel/${eventId}`, {}, { withCredentials: true })
@@ -99,7 +99,7 @@ export class MyEvents implements OnInit {
       });
   }
 
-  // --- ARŞİVLEME MODAL METOTLARI ---
+  // --- ARŞİVLEME MODALI ---
   openArchiveModal(eventId: number) {
     this.selectedEventId.set(eventId);
     this.showArchiveModal.set(true);
@@ -115,7 +115,7 @@ export class MyEvents implements OnInit {
     if (eventId === null) return;
 
     this.actionLoading[eventId] = true;
-    this.closeArchiveModal(); // İşlem başlarken modalı hemen kapatıyoruz
+    this.closeArchiveModal();
 
     this.http
       .patch(`http://localhost:8080/event/archive/${eventId}`, {}, { withCredentials: true })
@@ -128,7 +128,35 @@ export class MyEvents implements OnInit {
       });
   }
 
-  // Arayüzü sayfayı yenilemeden güncelleyen yardımcı metot
+  // --- SİLME MODALI ---
+  openDeleteModal(eventId: number) {
+    this.selectedEventId.set(eventId);
+    this.showDeleteModal.set(true);
+  }
+
+  closeDeleteModal() {
+    this.showDeleteModal.set(false);
+    this.selectedEventId.set(null);
+  }
+
+  confirmDelete() {
+    const eventId = this.selectedEventId();
+    if (eventId === null) return;
+
+    this.actionLoading[eventId] = true;
+    this.closeDeleteModal();
+
+    this.http
+      .delete(`http://localhost:8080/event/delete/${eventId}`, { withCredentials: true })
+      .pipe(finalize(() => (this.actionLoading[eventId] = false)))
+      .subscribe({
+        next: () => {
+          this.eventArray.update((events) => events.filter((ev) => ev.id !== eventId));
+        },
+        error: (err) => console.error('Delete error:', err),
+      });
+  }
+
   private updateEventStatusLocally(eventId: number, newStatus: string) {
     this.eventArray.update((events) =>
       events.map((ev) => (ev.id === eventId ? { ...ev, status: newStatus } : ev)),

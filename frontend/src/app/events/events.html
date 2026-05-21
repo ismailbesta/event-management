@@ -2,9 +2,6 @@
   <div class="container">
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
       <div>
-        <p class="text-uppercase text-body-secondary small mb-1 fw-semibold">
-          Aksigorta Etkinlikleri
-        </p>
         <h1 class="display-6 fw-semibold mb-1">Etkinlikleri keşfet</h1>
         <p class="text-body-secondary mb-0">Güncel etkinlikleri sırayla gör, katıl, paylaş.</p>
       </div>
@@ -138,7 +135,15 @@
         @for (event of eventArray(); track event.id) {
           <div
             class="card shadow position-relative event-card"
-            [ngClass]="event.status === 'ONGOING' ? 'border border-success border-2' : 'border-0'"
+            [ngClass]="{
+              'border-0': event.status === 'PUBLISHED',
+              'border border-success border-2': event.status === 'ONGOING',
+              'border border-warning border-2': event.status === 'UNPUBLISHED',
+              'border border-primary border-2': event.status === 'COMPLETED',
+              'border border-danger border-2': event.status === 'CANCELED',
+              'border border-dark border-2': event.status === 'TIMEOUT',
+              'border border-secondary border-2': event.status === 'ARCHIVED',
+            }"
           >
             <div class="card-body p-4">
               <a

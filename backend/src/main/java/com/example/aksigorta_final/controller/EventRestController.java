@@ -137,4 +137,11 @@ public class EventRestController {
         User sessionUser = (User) request.getSession().getAttribute("user");
         return eventService.getUserEventRole(eventId, sessionUser);
     }
+
+    @DeleteMapping("/delete/{eventId}")
+    public ResponseEntity deleteEvent(@PathVariable Long eventId, HttpServletRequest request){
+        User sessionUser = (User) request.getSession().getAttribute("user");
+        return eventService.deleteOne(eventId, sessionUser);
+    }
+
 }

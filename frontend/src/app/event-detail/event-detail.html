@@ -1,15 +1,23 @@
 <section class="bg-white py-4">
   <div class="container">
-    <a class="btn btn-outline-secondary mb-3" routerLink="/events">Etkinliklere Dön</a>
+    <a class="btn btn-outline-secondary mb-3" routerLink="/events">
+      <i class="bi bi-arrow-left me-1"></i> Etkinliklere Dön
+    </a>
 
     @if (eventItem()) {
       <div
-        class="card shadow-sm bg-light"
-        [ngClass]="
-          eventItem()!.status === 'ONGOING' ? 'border border-success border-2' : 'border-0'
-        "
+        class="card shadow bg-white"
+        [ngClass]="{
+          'border-0': eventItem()!.status === 'PUBLISHED',
+          'border border-success border-2': eventItem()!.status === 'ONGOING',
+          'border border-warning border-2': eventItem()!.status === 'UNPUBLISHED',
+          'border border-primary border-2': eventItem()!.status === 'COMPLETED',
+          'border border-danger border-2': eventItem()!.status === 'CANCELED',
+          'border border-dark border-2': eventItem()!.status === 'TIMEOUT',
+          'border border-secondary border-2': eventItem()!.status === 'ARCHIVED',
+        }"
       >
-        <div class="card-body shadow p-4">
+        <div class="card-body p-4">
           <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
             <div class="d-flex flex-wrap align-items-center gap-2">
               <h1 class="h4 text-uppercase mb-0">{{ eventItem()!.name }}</h1>
@@ -37,7 +45,7 @@
 
           <div class="row g-4">
             <div class="col-md-6">
-              <div class="border rounded-3 bg-white p-3">
+              <div class="border rounded-3 bg-light p-3">
                 <div class="mb-2">
                   <div class="text-uppercase text-secondary small">Başlangıç</div>
                   <div class="fw-semibold">
@@ -68,7 +76,12 @@
                 >
                   <i class="bi bi-person"></i>
                   <div>
-                    <div class="text-uppercase text-secondary small fw-semibold">Düzenleyen</div>
+                    <div
+                      class="text-uppercase small fw-semibold"
+                      [class.text-secondary]="userRole() !== 'OWNER'"
+                    >
+                      Düzenleyen
+                    </div>
                     <div [class.fw-semibold]="userRole() === 'OWNER'">
                       {{ eventItem()!.ownerFullName }}
                     </div>
@@ -104,7 +117,7 @@
           ((userRole() === 'GUEST' || userRole() === 'PARTICIPANT') &&
             canJoinOrLeave(eventItem()!.status))
         ) {
-          <div class="card-footer bg-transparent border-0 p-4 pt-0">
+          <div class="card-footer bg-transparent border-top border-light p-4 pt-3">
             <div class="d-grid">
               @if (userRole() === 'GUEST' && canJoinOrLeave(eventItem()!.status)) {
                 <button
@@ -139,7 +152,7 @@
                   @if (eventItem()!.status === 'UNPUBLISHED') {
                     <button
                       type="button"
-                      class="btn btn-success btn-lg fw-semibold"
+                      class="btn btn-success btn-lg fw-semibold px-5"
                       [disabled]="isActionLoading()"
                       (click)="publishEvent()"
                     >
@@ -148,11 +161,23 @@
                       }
                       Yayınla
                     </button>
+                  } @else if (eventItem()!.status === 'PUBLISHED') {
+                    <button
+                      type="button"
+                      class="btn btn-warning btn-lg fw-semibold px-4"
+                      [disabled]="isActionLoading()"
+                      (click)="unpublishEvent()"
+                    >
+                      @if (isActionLoading()) {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                      }
+                      Yayından Kaldır
+                    </button>
                   }
 
                   <button
                     type="button"
-                    class="btn btn-danger btn-lg fw-semibold"
+                    class="btn btn-danger btn-lg fw-semibold px-4"
                     [disabled]="isActionLoading()"
                     (click)="openCancelModal()"
                   >
@@ -180,9 +205,9 @@
 @if (showCancelModal()) {
   <div class="modal show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.5)">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Etkinliği İptal Et</h5>
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header border-bottom-0">
+          <h5 class="modal-title fw-bold">Etkinliği İptal Et</h5>
           <button
             type="button"
             class="btn-close"
@@ -190,17 +215,15 @@
             aria-label="Kapat"
           ></button>
         </div>
-        <div class="modal-body">
-          <p class="mb-0">
+        <div class="modal-body pt-0">
+          <p class="mb-0 text-secondary">
             Bu etkinliği iptal etmek istediğinize emin misiniz? Bu işlem geri alınamaz ve tüm
             katılımcılar bilgilendirilir.
           </p>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="closeCancelModal()">
-            Vazgeç
-          </button>
-          <button type="button" class="btn btn-danger" (click)="confirmCancel()">
+        <div class="modal-footer border-top-0">
+          <button type="button" class="btn btn-light" (click)="closeCancelModal()">Vazgeç</button>
+          <button type="button" class="btn btn-danger px-4" (click)="confirmCancel()">
             Evet, İptal Et
           </button>
         </div>
@@ -212,9 +235,9 @@
 @if (showParticipantsModal()) {
   <div class="modal show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.5)">
     <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header bg-light">
-          <h5 class="modal-title mb-0">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-light border-bottom-0">
+          <h5 class="modal-title mb-0 fw-bold">
             <i class="bi bi-people-fill me-2 text-primary"></i> Katılımcı Listesi
           </h5>
           <button
@@ -227,20 +250,27 @@
 
         <div class="modal-body p-0">
           @if (participantsLoading()) {
-            <div class="text-center py-4">
-              <div class="spinner-border text-secondary" role="status">
+            <div class="text-center py-5">
+              <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Yükleniyor...</span>
               </div>
             </div>
           } @else if (participants().length === 0) {
-            <div class="text-center py-4 text-secondary">Bu etkinliğe henüz kimse katılmamış.</div>
+            <div class="text-center py-5 text-secondary">
+              <i class="bi bi-inbox fs-1 d-block mb-2 text-muted"></i>
+              Bu etkinliğe henüz kimse katılmamış.
+            </div>
           } @else {
             <ul class="list-group list-group-flush">
               @for (user of participants(); track user.id) {
-                <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                <li
+                  class="list-group-item d-flex justify-content-between align-items-center py-3 px-4"
+                >
                   <div>
                     <div class="fw-bold">{{ user.name }} {{ user.surname }}</div>
-                    <div class="small text-secondary">{{ user.email }}</div>
+                    <div class="small text-secondary">
+                      <i class="bi bi-envelope me-1"></i> {{ user.email }}
+                    </div>
                   </div>
                 </li>
               }
@@ -249,7 +279,7 @@
         </div>
 
         @if (!participantsLoading() && participantTotalPages() > 1) {
-          <div class="modal-footer justify-content-center bg-light">
+          <div class="modal-footer justify-content-center bg-light border-top-0">
             <nav aria-label="Participant navigation">
               <ul class="pagination pagination-sm mb-0">
                 @for (page of getParticipantPages(); track page) {

@@ -2,7 +2,6 @@
   <div class="container">
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
       <div>
-        <p class="text-uppercase text-body-secondary small mb-1 fw-semibold">Yönetim Paneli</p>
         <h1 class="display-6 fw-semibold mb-1">Etkinliklerim</h1>
         <p class="text-body-secondary mb-0">
           Oluşturduğun tüm etkinlikleri buradan yönetebilirsin.
@@ -37,8 +36,16 @@
       <div class="d-grid gap-4">
         @for (event of eventArray(); track event.id) {
           <div
-            class="card shadow position-relative event-card"
-            [ngClass]="event.status === 'ONGOING' ? 'border border-success border-2' : 'border-0'"
+            class="card shadow-sm position-relative event-card"
+            [ngClass]="{
+              'border-0': event.status === 'PUBLISHED',
+              'border border-success border-2': event.status === 'ONGOING',
+              'border border-warning border-2': event.status === 'UNPUBLISHED',
+              'border border-primary border-2': event.status === 'COMPLETED',
+              'border border-danger border-2': event.status === 'CANCELED',
+              'border border-dark border-2': event.status === 'TIMEOUT',
+              'border border-secondary border-2': event.status === 'ARCHIVED',
+            }"
           >
             <div class="card-body p-4">
               <a
@@ -47,17 +54,43 @@
                 [attr.aria-label]="'Etkinlik detayına git: ' + event.name"
               ></a>
 
+              <div
+                class="d-flex justify-content-between align-items-start mb-3 position-relative z-3"
+              >
+                <div class="d-flex flex-wrap gap-2">
+                  <span class="badge text-bg-dark">{{ categoryLabel(event.category) }}</span>
+                  <span
+                    class="badge border"
+                    [ngClass]="event.status === 'ONGOING' ? 'text-bg-success' : 'text-bg-light'"
+                  >
+                    {{ statusLabel(event.status) }}
+                  </span>
+                </div>
+
+                <button
+                  class="btn btn-sm btn-outline-danger bg-white shadow-sm"
+                  style="
+                    border-radius: 50%;
+                    width: 35px;
+                    height: 35px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                  "
+                  [disabled]="actionLoading[event.id]"
+                  (click)="$event.stopPropagation(); openDeleteModal(event.id)"
+                  title="Etkinliği Kalıcı Olarak Sil"
+                >
+                  @if (actionLoading[event.id]) {
+                    <span class="spinner-border spinner-border-sm"></span>
+                  } @else {
+                    <i class="bi bi-trash"></i>
+                  }
+                </button>
+              </div>
+
               <div class="row g-4">
                 <div class="col-12 col-lg-8 d-flex flex-column">
-                  <div class="d-flex flex-wrap gap-2 mb-3">
-                    <span class="badge text-bg-dark">{{ categoryLabel(event.category) }}</span>
-                    <span
-                      class="badge border"
-                      [ngClass]="event.status === 'ONGOING' ? 'text-bg-success' : 'text-bg-light'"
-                    >
-                      {{ statusLabel(event.status) }}
-                    </span>
-                  </div>
                   <h3 class="h4 mb-2">{{ event.name }}</h3>
                   <p class="text-secondary mb-4">{{ event.description }}</p>
 
@@ -210,9 +243,9 @@
 @if (showCancelModal()) {
   <div class="modal show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.5)">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Etkinliği İptal Et</h5>
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header border-bottom-0">
+          <h5 class="modal-title fw-bold">Etkinliği İptal Et</h5>
           <button
             type="button"
             class="btn-close"
@@ -220,17 +253,15 @@
             aria-label="Kapat"
           ></button>
         </div>
-        <div class="modal-body">
-          <p class="mb-0">
+        <div class="modal-body pt-0">
+          <p class="mb-0 text-secondary">
             Bu etkinliği iptal etmek istediğinize emin misiniz? Bu işlem geri alınamaz ve tüm
             katılımcılar bilgilendirilir.
           </p>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="closeCancelModal()">
-            Vazgeç
-          </button>
-          <button type="button" class="btn btn-danger" (click)="confirmCancel()">
+        <div class="modal-footer border-top-0">
+          <button type="button" class="btn btn-light" (click)="closeCancelModal()">Vazgeç</button>
+          <button type="button" class="btn btn-danger px-4" (click)="confirmCancel()">
             Evet, İptal Et
           </button>
         </div>
@@ -242,9 +273,9 @@
 @if (showArchiveModal()) {
   <div class="modal show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.5)">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Etkinliği Arşivle</h5>
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header border-bottom-0">
+          <h5 class="modal-title fw-bold">Etkinliği Arşivle</h5>
           <button
             type="button"
             class="btn-close"
@@ -252,18 +283,51 @@
             aria-label="Kapat"
           ></button>
         </div>
-        <div class="modal-body">
-          <p class="mb-0">
+        <div class="modal-body pt-0">
+          <p class="mb-0 text-secondary">
             Bu etkinliği arşive kaldırmak istediğinize emin misiniz? Arşivlenen etkinlikler bu
             sayfadan kaldırılır ve arşiv klasörüne taşınır.
           </p>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="closeArchiveModal()">
-            Vazgeç
-          </button>
-          <button type="button" class="btn btn-primary" (click)="confirmArchive()">
+        <div class="modal-footer border-top-0">
+          <button type="button" class="btn btn-light" (click)="closeArchiveModal()">Vazgeç</button>
+          <button type="button" class="btn btn-primary px-4" (click)="confirmArchive()">
             Evet, Arşivle
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showDeleteModal()) {
+  <div class="modal show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.5)">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header border-bottom-0">
+          <h5 class="modal-title text-danger fw-bold">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> Etkinliği Sil
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            (click)="closeDeleteModal()"
+            aria-label="Kapat"
+          ></button>
+        </div>
+        <div class="modal-body pt-0">
+          <p class="mb-0 text-secondary">
+            Bu etkinliği kalıcı olarak silmek istediğinize emin misiniz?
+            <strong
+              >Bu işlem kesinlikle geri alınamaz ve etkinliğe dair tüm veriler (katılımcılar dahil)
+              sistemden silinir.</strong
+            >
+          </p>
+        </div>
+        <div class="modal-footer border-top-0">
+          <button type="button" class="btn btn-light" (click)="closeDeleteModal()">Vazgeç</button>
+          <button type="button" class="btn btn-danger px-4" (click)="confirmDelete()">
+            Evet, Kalıcı Olarak Sil
           </button>
         </div>
       </div>

@@ -611,4 +611,35 @@ public class EventService {
         return ResponseEntity.ok().body(Map.of("role", UserEventRole.GUEST));
     }
 
+    public ResponseEntity deleteOne(Long eventId, User sessionUser) {
+        Optional<Event> optionalEvent = eventRepository.findById(eventId);
+
+        if (optionalEvent.isEmpty()) {
+            Map<String, Object> response = Map.of(
+                    "success", false,
+                    "message", "Event not found",
+                    "eventId", eventId
+            );
+            return ResponseEntity.status(404).body(response);
+        }
+
+        Event event = optionalEvent.get();
+        if (!event.getOwner().getId().equals(sessionUser.getId())) {
+            Map<String, Object> response = Map.of(
+                    "success", false,
+                    "message", "Unauthorized: You do not have permission to delete this event.",
+                    "eventId", eventId
+            );
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }
+
+        eventRepository.delete(event);
+        Map<String, Object> response = Map.of(
+                "success", true,
+                "message", "Event deleted successfully.",
+                "eventId", eventId
+        );
+        return ResponseEntity.ok().body(response);
+    }
+
 }

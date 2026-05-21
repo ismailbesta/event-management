@@ -185,6 +185,21 @@ export class EventDetail implements OnInit {
       });
   }
 
+  unpublishEvent() {
+    if (!this.eventId) return;
+
+    this.isActionLoading.set(true);
+    this.http
+      .patch(`http://localhost:8080/event/unpublish/${this.eventId}`, null, {
+        withCredentials: true,
+      })
+      .pipe(finalize(() => this.isActionLoading.set(false)))
+      .subscribe({
+        next: () => this.loadEvent(this.eventId!),
+        error: (error) => console.error('Error unpublishing event:', error),
+      });
+  }
+
   private loadUserRole(eventId: number) {
     this.userRole.set(null);
     this.http
