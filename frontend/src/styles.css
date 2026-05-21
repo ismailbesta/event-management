@@ -1,1 +1,21 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* Global styles for event listing cards across components */
+.event-card {
+  cursor: pointer;
+  background-color: #ffffff;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease,
+    background-color 0.25s ease;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.event-card:hover,
+.event-card:focus-within {
+  background-color: #f8f9fa;
+  border-color: #adb5bd;
+  box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+}

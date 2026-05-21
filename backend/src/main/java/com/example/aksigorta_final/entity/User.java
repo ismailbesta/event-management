@@ -3,12 +3,16 @@ package com.example.aksigorta_final.entity;
 import com.example.aksigorta_final.util.UserStatus;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Data
+@Setter
+@Getter
 @Table(name = "users")
 public class User {
 

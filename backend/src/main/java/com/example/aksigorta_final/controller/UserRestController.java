@@ -5,10 +5,7 @@ import com.example.aksigorta_final.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.example.aksigorta_final.dto.UserRegisterRequestDto;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -33,5 +30,10 @@ public class UserRestController {
     @PostMapping("logout")
     public ResponseEntity logout(){
         return userService.logout();
+    }
+
+    @GetMapping("control")
+    public void control(){
+
     }
 }

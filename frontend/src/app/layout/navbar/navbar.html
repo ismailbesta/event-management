@@ -1,0 +1,118 @@
+<nav class="navbar navbar-expand-lg bg-body-tertiary py-2">
+  <div class="container">
+    <a class="navbar-brand fw-bold d-lg-none" routerLink="/events">Aksigorta</a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Menüyü aç"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <div
+        class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between w-100 gap-3"
+      >
+        <div class="d-flex align-items-center gap-3">
+          <a class="navbar-brand fw-bold d-none d-lg-inline-block" routerLink="/events"
+            >Aksigorta</a
+          >
+          <a
+            class="nav-link px-0"
+            routerLink="/events"
+            routerLinkActive="active"
+            aria-current="page"
+            >Etkinlikler</a
+          >
+        </div>
+
+        <form class="flex-grow-1 mx-lg-4" role="search" (submit)="onSearch($event)">
+          <div class="position-relative">
+            <input
+              class="form-control ps-3 pe-5"
+              type="search"
+              placeholder="Etkinlik ara"
+              aria-label="Etkinlik ara"
+              name="searchQuery"
+              [(ngModel)]="searchQuery"
+            />
+            <button
+              type="submit"
+              class="btn position-absolute top-50 end-0 translate-middle-y me-1 text-muted border-0 bg-transparent"
+            >
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+        </form>
+
+        <div class="d-flex flex-column flex-lg-row align-items-center gap-3">
+          <a class="btn btn-primary w-100 w-lg-auto" routerLink="/events/create">
+            <i class="bi bi-plus-lg me-2"></i>
+            Yeni Etkinlik Oluştur
+          </a>
+          <div class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <i class="bi bi-person-circle"></i>
+              {{ globalName }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li>
+                <a class="dropdown-item" routerLink="/my-events">Etkinliklerim</a>
+              </li>
+              <li>
+                <a class="dropdown-item" routerLink="/joined-events">Katıldıklarım</a>
+              </li>
+              <li>
+                <a class="dropdown-item text-danger" role="button" (click)="logout()">
+                  Çıkış Yap
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div
+  class="modal"
+  tabindex="-1"
+  *ngIf="showLogoutModal"
+  [class.show]="showLogoutModal"
+  [style.display]="showLogoutModal ? 'block' : 'none'"
+  style="background: rgba(0, 0, 0, 0.5)"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Çıkış Yap</h5>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="closeLogoutModal()"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p>Aksigorta etkinliklerinden çıkış yapmak istediğinize emin misiniz?</p>
+        <p *ngIf="showLogoutError" class="text-danger mt-2">
+          Çıkış işlemi başarısız oldu. Lütfen tekrar deneyin.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeLogoutModal()">İptal</button>
+        <button type="button" class="btn btn-danger" (click)="confirmLogout()">Çıkış Yap</button>
+      </div>
+    </div>
+  </div>
+</div>

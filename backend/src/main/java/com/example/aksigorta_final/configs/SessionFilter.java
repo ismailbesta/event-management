@@ -23,6 +23,12 @@ public class SessionFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
         String urlPath = request.getRequestURI();
+        String method = request.getMethod();
+
+        if ("OPTIONS".equalsIgnoreCase(method)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         // Giriş yapmadan erişilebilecek (Token/Session gerektirmeyen) endpoint'ler
         String[] freeUrls = {
@@ -47,7 +53,6 @@ public class SessionFilter implements Filter {
         // İstemci (Client) Bilgilerini Alma
         String ipAddress = getClientIp(request);
         String userAgent = request.getHeader("User-Agent");
-        String method = request.getMethod();
         String query = request.getQueryString();
         String referer = request.getHeader("Referer");
 

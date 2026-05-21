@@ -36,5 +36,11 @@ public class EventStatusScheduler {
             toComplete.forEach(event -> event.setStatus(EventStatus.COMPLETED));
             eventRepository.saveAll(toComplete);
         }
+
+        List<Event> toTimeout = eventRepository.findUnpublishedEventsToTimeout(EventStatus.UNPUBLISHED, today, nowTime);
+        if (!toTimeout.isEmpty()) {
+            toTimeout.forEach(event -> event.setStatus(EventStatus.TIMEOUT));
+            eventRepository.saveAll(toTimeout);
+        }
     }
 }

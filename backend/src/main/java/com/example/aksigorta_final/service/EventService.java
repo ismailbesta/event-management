@@ -10,6 +10,7 @@ import com.example.aksigorta_final.repository.EventRepository;
 import com.example.aksigorta_final.repository.UserRepository;
 import com.example.aksigorta_final.util.EventCategory;
 import com.example.aksigorta_final.util.EventStatus;
+import com.example.aksigorta_final.util.UserEventRole;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -19,10 +20,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.*;
 
 @Service
@@ -84,7 +82,10 @@ public class EventService {
             return ResponseEntity.badRequest().body(response);
         }
 
-        if (event.getParticipants().contains(sessionUser)) {
+        boolean isAlreadyJoined = event.getParticipants().stream()
+                .anyMatch(participant -> participant.getId().equals(sessionUser.getId()));
+
+        if (isAlreadyJoined) {
             Map<String, Object> response = Map.of(
                     "success", false,
                     "message", "Error: You have already joined this event."
@@ -101,21 +102,23 @@ public class EventService {
         return ResponseEntity.ok().body(response);
     }
 
-    public Page<EventResponseDto> eventList(int page) {
+    public Page<EventResponseDto> eventList(int page, User sessionUser) {
         Pageable pageable = Pageable.ofSize(10).withPage(page);
         List<EventStatus> visibleStatuses = List.of(
                 EventStatus.PUBLISHED,
                 EventStatus.ONGOING
         );
-        Page<Event> eventPage = eventRepository.findByStatusIn(visibleStatuses, pageable);
-        Page<EventResponseDto> response = eventPage.map(event -> {
+
+        Page<Event> eventPage = eventRepository.findByOwnerIdNotAndStatusIn(sessionUser.getId(), visibleStatuses, pageable);
+
+
+
+        return eventPage.map(event -> {
             EventResponseDto eventResponseDto = model.map(event, EventResponseDto.class);
             eventResponseDto.setOwnerFullName(event.getOwner().getName() + " " + event.getOwner().getSurname());
             eventResponseDto.setParticipantCount(event.getParticipants().size());
             return eventResponseDto;
         });
-
-        return response;
     }
 
     public ResponseEntity getEventById(Long eventId, User sessionUser) {
@@ -134,7 +137,8 @@ public class EventService {
 
         List<EventStatus> hiddenStatuses = List.of(
                 EventStatus.UNPUBLISHED,
-                EventStatus.ARCHIVED
+                EventStatus.ARCHIVED,
+                EventStatus.TIMEOUT
         );
         boolean isHiddenStatus = hiddenStatuses.contains(event.getStatus());
         boolean isOwner = event.getOwner().getId().equals(sessionUser.getId());
@@ -281,7 +285,10 @@ public class EventService {
         }
 
         Event event = optionalEvent.get();
-        if (!event.getParticipants().contains(sessionUser)) {
+        boolean isParticipant = event.getParticipants().stream()
+                .anyMatch(participant -> participant.getId().equals(sessionUser.getId()));
+
+        if (!isParticipant) {
             Map<String, Object> response = Map.of(
                     "success", false,
                     "message", "You are not a participant of this event.",
@@ -299,7 +306,8 @@ public class EventService {
             return ResponseEntity.badRequest().body(response);
         }
 
-        event.getParticipants().remove(sessionUser);
+        event.getParticipants().removeIf(participant -> participant.getId().equals(sessionUser.getId()));
+
         eventRepository.save(event);
         Map<String, Object> response = Map.of(
                 "success", true,
@@ -483,13 +491,22 @@ public class EventService {
         ));
     }
 
-    public Page<EventResponseDto> listEventByCategory(EventCategory category, int page){
+    public Page<EventResponseDto> listEventByCategory(EventCategory category, int page, User sessionUser) {
+
         Pageable pageable = Pageable.ofSize(10).withPage(page);
+
         List<EventStatus> visibleStatuses = List.of(
                 EventStatus.PUBLISHED,
                 EventStatus.ONGOING
         );
-        Page<Event> eventPage = eventRepository.findByCategoryAndStatusIn(category, visibleStatuses, pageable);
+
+        Page<Event> eventPage = eventRepository.findByCategoryAndOwnerIdNotAndStatusIn(
+                category,
+                sessionUser.getId(),
+                visibleStatuses,
+                pageable
+        );
+
         return eventPage.map(event -> {
             EventResponseDto eventResponseDto = model.map(event, EventResponseDto.class);
             eventResponseDto.setOwnerFullName(event.getOwner().getName() + " " + event.getOwner().getSurname());
@@ -511,7 +528,8 @@ public class EventService {
 
         List<EventStatus> archivableStatuses = List.of(
                 EventStatus.CANCELED,
-                EventStatus.COMPLETED
+                EventStatus.COMPLETED,
+                EventStatus.TIMEOUT
         );
 
         boolean isOwner = optionalEvent.get().getOwner().getId().equals(sessionUser.getId());
@@ -549,4 +567,48 @@ public class EventService {
             return eventResponseDto;
         });
     }
+
+    public ResponseEntity getUserEventRole(Long eventId, User sessionUser) {
+
+        Optional<Event> optionalEvent = eventRepository.findById(eventId);
+        if (optionalEvent.isEmpty()) {
+            Map<String, Object> response = Map.of(
+                    "success", false,
+                    "message", "Error: The requested event could not be found.",
+                    "eventId", eventId
+            );
+            return ResponseEntity.status(404).body(response);
+        }
+
+        Event event = optionalEvent.get();
+        List<EventStatus> hiddenStatuses = List.of(
+                EventStatus.UNPUBLISHED,
+                EventStatus.ARCHIVED,
+                EventStatus.TIMEOUT
+        );
+        boolean isHiddenStatus = hiddenStatuses.contains(event.getStatus());
+        boolean isOwner = event.getOwner().getId().equals(sessionUser.getId());
+
+        if (isHiddenStatus && !isOwner) {
+            Map<String, Object> response = Map.of(
+                    "success", false,
+                    "message", "Error: The requested event could not be found."
+            );
+            return ResponseEntity.status(404).body(response);
+        }
+
+        if (isOwner) {
+            return ResponseEntity.ok().body(Map.of("role", UserEventRole.OWNER));
+        }
+
+        boolean isParticipant = event.getParticipants().stream()
+                .anyMatch(participant -> participant.getId().equals(sessionUser.getId()));
+
+        if (isParticipant) {
+            return ResponseEntity.ok().body(Map.of("role", UserEventRole.PARTICIPANT));
+        }
+
+        return ResponseEntity.ok().body(Map.of("role", UserEventRole.GUEST));
+    }
+
 }

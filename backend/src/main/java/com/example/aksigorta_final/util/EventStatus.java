@@ -6,5 +6,6 @@ public enum EventStatus {
     ONGOING,         // Etkinlik su anda gerceklesiyor (saati geldi)
     COMPLETED,       // Etkinlik basariyla tamamlandi
     CANCELED,        // Etkinlik iptal edildi
-    ARCHIVED         // Suresi gecmis veya yayindan kaldirilmis etkinlikler
+    ARCHIVED,         // Suresi gecmis veya yayindan kaldirilmis etkinlikler
+    TIMEOUT         // Yayına alınmadan süresi geçen etkinlikler
 }

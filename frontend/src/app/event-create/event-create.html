@@ -1,0 +1,180 @@
+<section class="event-create-section py-4">
+  <div class="container">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+      <div>
+        <p class="text-uppercase text-body-secondary small mb-1 fw-semibold">Yeni Etkinlik</p>
+        <h1 class="display-6 fw-semibold mb-1">Etkinlik Oluştur</h1>
+        <p class="text-body-secondary mb-0">Detayları doldur, etkinliğini hemen yayınla.</p>
+      </div>
+      <a class="btn btn-outline-secondary" routerLink="/events">Etkinliklere dön</a>
+    </div>
+
+    <div class="card border-0 shadow-sm event-create-card">
+      <div class="card-body p-4">
+        @if (errorMessage()) {
+          <div class="alert alert-danger d-flex align-items-center mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+            <div><strong>Hata!</strong> {{ errorMessage() }}</div>
+          </div>
+        }
+
+        @if (successMessage()) {
+          <div
+            class="alert alert-success d-flex flex-wrap align-items-center gap-2 mb-4 alert-dismissible"
+            role="alert"
+          >
+            <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+            <div class="flex-grow-1">{{ successMessage() }}</div>
+
+            @if (createdEventId()) {
+              <a class="btn btn-outline-dark btn-sm" [routerLink]="['/events', createdEventId()]">
+                Etkinliği görüntüle
+              </a>
+            }
+
+            <button
+              type="button"
+              class="btn-close"
+              aria-label="Close"
+              (click)="successMessage.set(null)"
+            ></button>
+          </div>
+        }
+
+        <form [formGroup]="eventForm" (ngSubmit)="onSubmit()">
+          <div class="row g-4">
+            <div class="col-12">
+              <label for="name" class="form-label">Etkinlik adı</label>
+              <input
+                id="name"
+                type="text"
+                class="form-control"
+                formControlName="name"
+                placeholder="Örn: Bahar Teknoloji Zirvesi"
+                [class.is-invalid]="control('name')?.invalid && control('name')?.touched"
+              />
+              <div class="invalid-feedback">Etkinlik adı zorunludur.</div>
+            </div>
+
+            <div class="col-12">
+              <label for="description" class="form-label">Açıklama</label>
+              <textarea
+                id="description"
+                rows="4"
+                class="form-control"
+                formControlName="description"
+                placeholder="Etkinlik hakkında kısa bir açıklama yazın"
+                [class.is-invalid]="
+                  control('description')?.invalid && control('description')?.touched
+                "
+              ></textarea>
+              <div class="invalid-feedback">Açıklama zorunludur.</div>
+            </div>
+
+            <div class="col-12 col-lg-6">
+              <label for="location" class="form-label">Konum</label>
+              <input
+                id="location"
+                type="text"
+                class="form-control"
+                formControlName="location"
+                placeholder="Örn: Kadıköy, İstanbul"
+                [class.is-invalid]="control('location')?.invalid && control('location')?.touched"
+              />
+              <div class="invalid-feedback">Konum zorunludur.</div>
+            </div>
+
+            <div class="col-12 col-lg-6">
+              <label for="category" class="form-label">Kategori</label>
+              <select
+                id="category"
+                class="form-select"
+                formControlName="category"
+                [class.is-invalid]="control('category')?.invalid && control('category')?.touched"
+              >
+                @for (option of categoryOptions; track option.value) {
+                  <option [value]="option.value">
+                    {{ option.label }}
+                  </option>
+                }
+              </select>
+              <div class="invalid-feedback">Kategori seçimi zorunludur.</div>
+            </div>
+
+            <div class="col-12">
+              <div class="event-create-panel">
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <label for="startDate" class="form-label">Başlangıç tarihi</label>
+                    <input
+                      id="startDate"
+                      type="date"
+                      class="form-control"
+                      formControlName="startDate"
+                      [min]="today"
+                      [class.is-invalid]="
+                        control('startDate')?.invalid && control('startDate')?.touched
+                      "
+                    />
+                    <div class="invalid-feedback">Başlangıç tarihi zorunludur.</div>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label for="startTime" class="form-label">Başlangıç saati</label>
+                    <input
+                      id="startTime"
+                      type="time"
+                      class="form-control"
+                      formControlName="startTime"
+                      [class.is-invalid]="
+                        control('startTime')?.invalid && control('startTime')?.touched
+                      "
+                    />
+                    <div class="invalid-feedback">Başlangıç saati zorunludur.</div>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label for="endDate" class="form-label">Bitiş tarihi</label>
+                    <input
+                      id="endDate"
+                      type="date"
+                      class="form-control"
+                      formControlName="endDate"
+                      [min]="control('startDate')?.value || today"
+                      [class.is-invalid]="
+                        control('endDate')?.invalid && control('endDate')?.touched
+                      "
+                    />
+                    <div class="invalid-feedback">Bitiş tarihi zorunludur.</div>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label for="endTime" class="form-label">Bitiş saati</label>
+                    <input
+                      id="endTime"
+                      type="time"
+                      class="form-control"
+                      formControlName="endTime"
+                      [class.is-invalid]="
+                        control('endTime')?.invalid && control('endTime')?.touched
+                      "
+                    />
+                    <div class="invalid-feedback">Bitiş saati zorunludur.</div>
+                  </div>
+                </div>
+                <p class="text-body-secondary small mt-3 mb-0">
+                  Etkinlik tarihleri bugünden önce olamaz. Aynı gün için bitiş saati başlangıç
+                  saatinden erken olamaz.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex flex-wrap gap-2 justify-content-end mt-4">
+            <a class="btn btn-outline-secondary" routerLink="/events">İptal</a>
+            <button type="submit" class="btn btn-primary" [disabled]="submitting()">
+              {{ submitting() ? 'Kaydediliyor...' : 'Etkinliği oluştur' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>

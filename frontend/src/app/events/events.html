@@ -1,0 +1,252 @@
+<section class="bg-white py-4">
+  <div class="container">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+      <div>
+        <p class="text-uppercase text-body-secondary small mb-1 fw-semibold">
+          Aksigorta Etkinlikleri
+        </p>
+        <h1 class="display-6 fw-semibold mb-1">Etkinlikleri keşfet</h1>
+        <p class="text-body-secondary mb-0">Güncel etkinlikleri sırayla gör, katıl, paylaş.</p>
+      </div>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 mb-4">
+      <button
+        class="btn rounded-pill px-3"
+        [ngClass]="activeCategory() === null ? 'btn-dark' : 'btn-outline-secondary'"
+        (click)="filterByCategory(null)"
+      >
+        Tümü
+      </button>
+
+      <button
+        class="btn rounded-pill px-3"
+        [ngClass]="activeCategory() === 'GENERAL' ? 'btn-dark' : 'btn-outline-secondary'"
+        (click)="filterByCategory('GENERAL')"
+      >
+        Genel
+      </button>
+
+      <button
+        class="btn rounded-pill px-3"
+        [ngClass]="
+          activeCategory() === 'TECHNOLOGY_AND_SOFTWARE' ? 'btn-dark' : 'btn-outline-secondary'
+        "
+        (click)="filterByCategory('TECHNOLOGY_AND_SOFTWARE')"
+      >
+        Teknoloji ve Yazılım
+      </button>
+
+      <button
+        class="btn rounded-pill px-3"
+        [ngClass]="activeCategory() === 'MUSIC_AND_CONCERTS' ? 'btn-dark' : 'btn-outline-secondary'"
+        (click)="filterByCategory('MUSIC_AND_CONCERTS')"
+      >
+        Müzik ve Konserler
+      </button>
+
+      <button
+        class="btn rounded-pill px-3"
+        [ngClass]="activeCategory() === 'ARTS_AND_CULTURE' ? 'btn-dark' : 'btn-outline-secondary'"
+        (click)="filterByCategory('ARTS_AND_CULTURE')"
+      >
+        Sanat ve Kültür
+      </button>
+
+      @if (showAllCategories()) {
+        <button
+          class="btn rounded-pill px-3"
+          [ngClass]="activeCategory() === 'FOOD_AND_DRINK' ? 'btn-dark' : 'btn-outline-secondary'"
+          (click)="filterByCategory('FOOD_AND_DRINK')"
+        >
+          Yemek ve İçecek
+        </button>
+
+        <button
+          class="btn rounded-pill px-3"
+          [ngClass]="
+            activeCategory() === 'GAMING_AND_ESPORTS' ? 'btn-dark' : 'btn-outline-secondary'
+          "
+          (click)="filterByCategory('GAMING_AND_ESPORTS')"
+        >
+          Oyun ve E-Spor
+        </button>
+
+        <button
+          class="btn rounded-pill px-3"
+          [ngClass]="
+            activeCategory() === 'SPORTS_AND_OUTDOORS' ? 'btn-dark' : 'btn-outline-secondary'
+          "
+          (click)="filterByCategory('SPORTS_AND_OUTDOORS')"
+        >
+          Spor ve Açık Hava
+        </button>
+
+        <button
+          class="btn rounded-pill px-3"
+          [ngClass]="
+            activeCategory() === 'EDUCATION_AND_SEMINARS' ? 'btn-dark' : 'btn-outline-secondary'
+          "
+          (click)="filterByCategory('EDUCATION_AND_SEMINARS')"
+        >
+          Eğitim ve Seminerler
+        </button>
+
+        <button
+          class="btn rounded-pill px-3"
+          [ngClass]="
+            activeCategory() === 'SOCIAL_RESPONSIBILITY' ? 'btn-dark' : 'btn-outline-secondary'
+          "
+          (click)="filterByCategory('SOCIAL_RESPONSIBILITY')"
+        >
+          Sosyal Sorumluluk
+        </button>
+      }
+
+      <button
+        class="btn rounded-pill px-3 btn-outline-secondary border-dashed"
+        (click)="toggleCategories()"
+      >
+        {{ showAllCategories() ? 'Daha Az Gizle' : '...' }}
+      </button>
+    </div>
+
+    @if (loading()) {
+      <div
+        class="text-center"
+        style="position: absolute; left: 50%; transform: translateX(-50%); z-index: 10"
+      >
+        <div class="spinner-border text-secondary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    }
+
+    @if (!loading() && eventArray().length === 0) {
+      <div class="text-center py-5">
+        <div class="bg-white border rounded-3 shadow-sm d-inline-block p-4">
+          <h2 class="h5 mb-2">Henüz etkinlik yok</h2>
+          <p class="text-secondary mb-0">
+            Seçili kategoride etkinlik bulunamadı veya ilk etkinliği sen oluştur.
+          </p>
+        </div>
+      </div>
+    }
+
+    @if (eventArray().length > 0) {
+      <div class="d-grid gap-4">
+        @for (event of eventArray(); track event.id) {
+          <div
+            class="card shadow-sm position-relative event-card"
+            [ngClass]="event.status === 'ONGOING' ? 'border border-success border-2' : 'border-0'"
+          >
+            <div class="card-body p-4">
+              <a
+                class="stretched-link"
+                [routerLink]="['/events', event.id]"
+                [attr.aria-label]="'Etkinlik detayına git: ' + event.name"
+              ></a>
+              <div class="row g-4">
+                <div class="col-12 col-lg-8 d-flex flex-column">
+                  <div class="d-flex flex-wrap gap-2 mb-3">
+                    <span class="badge text-bg-dark">{{ categoryLabel(event.category) }}</span>
+                    <span
+                      class="badge border"
+                      [ngClass]="event.status === 'ONGOING' ? 'text-bg-success' : 'text-bg-light'"
+                    >
+                      {{ statusLabel(event.status) }}
+                    </span>
+                  </div>
+                  <h3 class="h4 mb-2">{{ event.name }}</h3>
+                  <p class="text-secondary mb-4">{{ event.description }}</p>
+                  <div class="d-flex flex-wrap gap-4 text-secondary small mt-auto">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-geo-alt fs-6"></i>
+                      <span>{{ event.location }}</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-person fs-6"></i>
+                      <span>{{ event.ownerFullName }}</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-people fs-6"></i>
+                      <span>{{ event.participantCount }} katılımcı</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-4">
+                  <div class="border rounded-3 bg-white p-3 mb-3">
+                    <div class="mb-3">
+                      <div class="text-uppercase text-secondary small mb-1">Başlangıç</div>
+                      <div class="fw-semibold">
+                        {{ event.startDate }}
+                        <span class="ms-1 text-secondary">{{ event.startTime }}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="text-uppercase text-secondary small mb-1">Bitiş</div>
+                      <div class="fw-semibold">
+                        {{ event.endDate }}
+                        <span class="ms-1 text-secondary">{{ event.endTime }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="position-relative z-1">
+                    @switch (roleFor(event.id)) {
+                      @case ('LOADING') {
+                        <button type="button" class="btn btn-outline-secondary w-100" disabled>
+                          <span class="spinner-border spinner-border-sm me-2"></span>
+                          Rol yükleniyor...
+                        </button>
+                      }
+                      @case ('PARTICIPANT') {
+                        <button
+                          type="button"
+                          class="btn btn-danger w-100"
+                          [disabled]="actionLoading[event.id]"
+                          (click)="$event.stopPropagation(); leaveEvent(event.id)"
+                        >
+                          @if (actionLoading[event.id]) {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                          }
+                          {{ actionLoading[event.id] ? 'Ayrılınıyor...' : 'Etkinlikten Ayrıl' }}
+                        </button>
+                      }
+                      @case ('GUEST') {
+                        <button
+                          type="button"
+                          class="btn btn-primary w-100"
+                          [disabled]="actionLoading[event.id]"
+                          (click)="$event.stopPropagation(); joinEvent(event.id)"
+                        >
+                          @if (actionLoading[event.id]) {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                          }
+                          {{ actionLoading[event.id] ? 'Katılınıyor...' : 'Katıl' }}
+                        </button>
+                      }
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      @if (pages().length > 1) {
+        <nav aria-label="Page navigation" class="mt-5">
+          <ul class="pagination justify-content-center">
+            @for (page of pages(); track page) {
+              <li class="page-item" [class.active]="page === activePage()">
+                <a class="page-link" role="button" (click)="loadEvents(page)">{{ page + 1 }}</a>
+              </li>
+            }
+          </ul>
+        </nav>
+      }
+    }
+  </div>
+</section>

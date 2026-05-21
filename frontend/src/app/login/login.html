@@ -1,0 +1,81 @@
+<div class="container-fluid d-flex justify-content-center align-items-center min-vh-100">
+  <div class="card shadow-lg p-4" style="width: 100%; max-width: 400px">
+    <div
+      *ngIf="showRegisterSuccess"
+      class="alert alert-warning alert-dismissible fade show mb-3"
+      role="alert"
+    >
+      Kaydınız başarılı. Lütfen giriş yapın.
+      <button
+        type="button"
+        class="btn-close"
+        aria-label="Close"
+        (click)="showRegisterSuccess = false"
+      ></button>
+    </div>
+
+    <div
+      *ngIf="showErrorModal"
+      class="alert alert-danger d-flex align-items-center mb-4 shadow-sm"
+      role="alert"
+    >
+      <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+      <div><strong>Hata!</strong> {{ errorMessage }}</div>
+      <button
+        type="button"
+        class="btn-close ms-auto"
+        aria-label="Close"
+        (click)="closeErrorModal()"
+      ></button>
+    </div>
+    <h2 class="text-center mb-4">Giriş Yap</h2>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="mb-3">
+        <label for="email" class="form-label">E-posta</label>
+        <input
+          type="email"
+          class="form-control"
+          id="email"
+          formControlName="email"
+          placeholder="E-posta adresiniz"
+        />
+        <div
+          class="invalid-feedback"
+          *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+        >
+          Geçerli bir e-posta girin
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label">Şifre</label>
+        <input
+          type="password"
+          class="form-control"
+          id="password"
+          formControlName="password"
+          placeholder="Şifreniz"
+        />
+        <div
+          class="invalid-feedback"
+          *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+        >
+          Şifre en az 2 karakter olmalıdır
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100 mb-3" [disabled]="loginForm.invalid">
+        Giriş Yap
+      </button>
+    </form>
+
+    <hr />
+
+    <div class="text-center">
+      <p class="mb-0">
+        Hesabınız yok mu? <a routerLink="/register" class="text-decoration-none">Kaydol</a>
+      </p>
+    </div>
+  </div>
+</div>

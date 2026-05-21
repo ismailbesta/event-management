@@ -1,0 +1,269 @@
+<section class="bg-white py-4">
+  <div class="container">
+    <a class="btn btn-outline-secondary mb-3" routerLink="/events">Etkinliklere Dön</a>
+
+    @if (eventItem()) {
+      <div
+        class="card shadow-sm bg-light"
+        [ngClass]="
+          eventItem()!.status === 'ONGOING' ? 'border border-success border-2' : 'border-0'
+        "
+      >
+        <div class="card-body p-4">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+            <div class="d-flex flex-wrap align-items-center gap-2">
+              <h1 class="h4 text-uppercase mb-0">{{ eventItem()!.name }}</h1>
+              <span class="badge text-bg-dark">{{ categoryLabel(eventItem()!.category) }}</span>
+              <span
+                class="badge border"
+                [ngClass]="eventItem()!.status === 'ONGOING' ? 'text-bg-success' : 'text-bg-light'"
+              >
+                {{ statusLabel(eventItem()!.status) }}
+              </span>
+            </div>
+
+            @if (userRole() === 'OWNER' && isEventActive(eventItem()!.status)) {
+              <a
+                class="btn btn-outline-secondary btn-sm"
+                [routerLink]="['/events/edit', eventItem()!.id]"
+                aria-label="Etkinliği düzenle"
+              >
+                <i class="bi bi-pencil-square me-1"></i> Düzenle
+              </a>
+            }
+          </div>
+
+          <p class="text-secondary mb-4">{{ eventItem()!.description }}</p>
+
+          <div class="row g-4">
+            <div class="col-md-6">
+              <div class="border rounded-3 bg-white p-3">
+                <div class="mb-2">
+                  <div class="text-uppercase text-secondary small">Başlangıç</div>
+                  <div class="fw-semibold">
+                    {{ eventItem()!.startDate | date: 'mediumDate' }} {{ eventItem()!.startTime }}
+                  </div>
+                </div>
+                <div>
+                  <div class="text-uppercase text-secondary small">Bitiş</div>
+                  <div class="fw-semibold">
+                    {{ eventItem()!.endDate | date: 'mediumDate' }} {{ eventItem()!.endTime }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="d-flex flex-column gap-3">
+                <div class="d-flex align-items-start gap-2">
+                  <i class="bi bi-geo-alt text-secondary"></i>
+                  <div>
+                    <div class="text-uppercase text-secondary small fw-semibold">Konum</div>
+                    <div class="fw-semibold">{{ eventItem()!.location }}</div>
+                  </div>
+                </div>
+                <div
+                  class="d-flex align-items-start gap-2"
+                  [class.text-success]="userRole() === 'OWNER'"
+                >
+                  <i class="bi bi-person"></i>
+                  <div>
+                    <div class="text-uppercase text-secondary small fw-semibold">Düzenleyen</div>
+                    <div [class.fw-semibold]="userRole() === 'OWNER'">
+                      {{ eventItem()!.ownerFullName }}
+                    </div>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <i class="bi bi-people text-secondary"></i>
+                  <div>
+                    <div class="text-uppercase text-secondary small fw-semibold">
+                      Katılımcı Sayısı
+                    </div>
+
+                    @if (userRole() === 'OWNER') {
+                      <a
+                        class="fw-semibold text-primary text-decoration-underline"
+                        role="button"
+                        (click)="openParticipantsModal()"
+                      >
+                        {{ eventItem()!.participantCount }} Kişi (Listeyi Gör)
+                      </a>
+                    } @else {
+                      <div class="fw-semibold">{{ eventItem()!.participantCount }} Kişi</div>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        @if (
+          (userRole() === 'OWNER' && isEventActive(eventItem()!.status)) ||
+          ((userRole() === 'GUEST' || userRole() === 'PARTICIPANT') &&
+            canJoinOrLeave(eventItem()!.status))
+        ) {
+          <div class="card-footer bg-transparent border-0 p-4 pt-0">
+            <div class="d-grid">
+              @if (userRole() === 'GUEST' && canJoinOrLeave(eventItem()!.status)) {
+                <button
+                  type="button"
+                  class="btn btn-primary btn-lg fw-semibold"
+                  [disabled]="isActionLoading()"
+                  (click)="joinEvent()"
+                >
+                  @if (isActionLoading()) {
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                  }
+                  {{ isActionLoading() ? 'İşlem yapılıyor...' : 'Bu Etkinliğe Katıl' }}
+                </button>
+              }
+
+              @if (userRole() === 'PARTICIPANT' && canJoinOrLeave(eventItem()!.status)) {
+                <button
+                  type="button"
+                  class="btn btn-danger btn-lg fw-semibold"
+                  [disabled]="isActionLoading()"
+                  (click)="leaveEvent()"
+                >
+                  @if (isActionLoading()) {
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                  }
+                  {{ isActionLoading() ? 'İşlem yapılıyor...' : 'Etkinlikten Ayrıl' }}
+                </button>
+              }
+
+              @if (userRole() === 'OWNER' && isEventActive(eventItem()!.status)) {
+                <div class="d-flex flex-column flex-sm-row gap-2 justify-content-sm-end">
+                  @if (eventItem()!.status === 'UNPUBLISHED') {
+                    <button
+                      type="button"
+                      class="btn btn-success btn-lg fw-semibold"
+                      [disabled]="isActionLoading()"
+                      (click)="publishEvent()"
+                    >
+                      @if (isActionLoading()) {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                      }
+                      Yayınla
+                    </button>
+                  }
+
+                  <button
+                    type="button"
+                    class="btn btn-danger btn-lg fw-semibold"
+                    [disabled]="isActionLoading()"
+                    (click)="openCancelModal()"
+                  >
+                    @if (isActionLoading()) {
+                      <span class="spinner-border spinner-border-sm me-2"></span>
+                    }
+                    Etkinliği İptal Et
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="d-flex justify-content-center align-items-center py-5">
+        <div class="spinner-border text-secondary" role="status">
+          <span class="visually-hidden">Yükleniyor...</span>
+        </div>
+      </div>
+    }
+  </div>
+</section>
+
+@if (showCancelModal()) {
+  <div class="modal show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.5)">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Etkinliği İptal Et</h5>
+          <button
+            type="button"
+            class="btn-close"
+            (click)="closeCancelModal()"
+            aria-label="Kapat"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-0">
+            Bu etkinliği iptal etmek istediğinize emin misiniz? Bu işlem geri alınamaz ve tüm
+            katılımcılar bilgilendirilir.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeCancelModal()">
+            Vazgeç
+          </button>
+          <button type="button" class="btn btn-danger" (click)="confirmCancel()">
+            Evet, İptal Et
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showParticipantsModal()) {
+  <div class="modal show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.5)">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-light">
+          <h5 class="modal-title mb-0">
+            <i class="bi bi-people-fill me-2 text-primary"></i> Katılımcı Listesi
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            (click)="closeParticipantsModal()"
+            aria-label="Kapat"
+          ></button>
+        </div>
+
+        <div class="modal-body p-0">
+          @if (participantsLoading()) {
+            <div class="text-center py-4">
+              <div class="spinner-border text-secondary" role="status">
+                <span class="visually-hidden">Yükleniyor...</span>
+              </div>
+            </div>
+          } @else if (participants().length === 0) {
+            <div class="text-center py-4 text-secondary">Bu etkinliğe henüz kimse katılmamış.</div>
+          } @else {
+            <ul class="list-group list-group-flush">
+              @for (user of participants(); track user.id) {
+                <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                  <div>
+                    <div class="fw-bold">{{ user.name }} {{ user.surname }}</div>
+                    <div class="small text-secondary">{{ user.email }}</div>
+                  </div>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+
+        @if (!participantsLoading() && participantTotalPages() > 1) {
+          <div class="modal-footer justify-content-center bg-light">
+            <nav aria-label="Participant navigation">
+              <ul class="pagination pagination-sm mb-0">
+                @for (page of getParticipantPages(); track page) {
+                  <li class="page-item" [class.active]="page === participantPage()">
+                    <a class="page-link" role="button" (click)="loadParticipants(page)">{{
+                      page + 1
+                    }}</a>
+                  </li>
+                }
+              </ul>
+            </nav>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}

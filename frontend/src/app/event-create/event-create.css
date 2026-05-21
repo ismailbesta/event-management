@@ -1,0 +1,15 @@
+.event-create-section {
+  background: radial-gradient(circle at top, #f5f7ff, #ffffff 55%);
+}
+
+.event-create-card {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.event-create-panel {
+  background: #f8f9fa;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  border: 1px solid #e9ecef;
+}

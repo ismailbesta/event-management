@@ -1,0 +1,272 @@
+<section class="bg-white py-4">
+  <div class="container">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+      <div>
+        <p class="text-uppercase text-body-secondary small mb-1 fw-semibold">Yönetim Paneli</p>
+        <h1 class="display-6 fw-semibold mb-1">Etkinliklerim</h1>
+        <p class="text-body-secondary mb-0">
+          Oluşturduğun tüm etkinlikleri buradan yönetebilirsin.
+        </p>
+      </div>
+
+      <a class="btn btn-outline-secondary" routerLink="/archived-events">
+        <i class="bi bi-archive me-1"></i> Arşivlenmiş Etkinlikler
+      </a>
+    </div>
+
+    @if (loading()) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-secondary" role="status">
+          <span class="visually-hidden">Yükleniyor...</span>
+        </div>
+      </div>
+    }
+
+    @if (!loading() && eventArray().length === 0) {
+      <div class="text-center py-5">
+        <div class="bg-white border rounded-3 shadow-sm d-inline-block p-4">
+          <h2 class="h5 mb-2">Henüz bir etkinliğin yok</h2>
+          <p class="text-secondary mb-0">
+            Hemen yeni bir etkinlik oluşturarak insanları bir araya getir.
+          </p>
+        </div>
+      </div>
+    }
+
+    @if (eventArray().length > 0) {
+      <div class="d-grid gap-4">
+        @for (event of eventArray(); track event.id) {
+          <div
+            class="card shadow-sm position-relative event-card"
+            [ngClass]="event.status === 'ONGOING' ? 'border border-success border-2' : 'border-0'"
+          >
+            <div class="card-body p-4">
+              <a
+                class="stretched-link"
+                [routerLink]="['/events', event.id]"
+                [attr.aria-label]="'Etkinlik detayına git: ' + event.name"
+              ></a>
+
+              <div class="row g-4">
+                <div class="col-12 col-lg-8 d-flex flex-column">
+                  <div class="d-flex flex-wrap gap-2 mb-3">
+                    <span class="badge text-bg-dark">{{ categoryLabel(event.category) }}</span>
+                    <span
+                      class="badge border"
+                      [ngClass]="event.status === 'ONGOING' ? 'text-bg-success' : 'text-bg-light'"
+                    >
+                      {{ statusLabel(event.status) }}
+                    </span>
+                  </div>
+                  <h3 class="h4 mb-2">{{ event.name }}</h3>
+                  <p class="text-secondary mb-4">{{ event.description }}</p>
+
+                  <div class="d-flex flex-wrap gap-4 text-secondary small mt-auto">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-geo-alt fs-6"></i>
+                      <span>{{ event.location }}</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-people fs-6"></i>
+                      <span>{{ event.participantCount }} katılımcı</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-4">
+                  <div class="border rounded-3 bg-white p-3 mb-3">
+                    <div class="mb-3">
+                      <div class="text-uppercase text-secondary small mb-1">Başlangıç</div>
+                      <div class="fw-semibold">
+                        {{ event.startDate }}
+                        <span class="ms-1 text-secondary">{{ event.startTime }}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="text-uppercase text-secondary small mb-1">Bitiş</div>
+                      <div class="fw-semibold">
+                        {{ event.endDate }}
+                        <span class="ms-1 text-secondary">{{ event.endTime }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="d-flex flex-column gap-2 position-relative z-1">
+                    @if (
+                      event.status !== 'CANCELED' &&
+                      event.status !== 'ARCHIVED' &&
+                      event.status !== 'COMPLETED' &&
+                      event.status !== 'TIMEOUT'
+                    ) {
+                      <a
+                        class="btn btn-outline-secondary w-100 mb-1"
+                        [routerLink]="['/events/edit', event.id]"
+                        (click)="$event.stopPropagation()"
+                      >
+                        <i class="bi bi-pencil-square me-1"></i> Düzenle
+                      </a>
+                    }
+
+                    <div class="d-flex gap-2">
+                      @if (event.status === 'UNPUBLISHED') {
+                        <button
+                          class="btn btn-success flex-grow-1"
+                          [disabled]="actionLoading[event.id]"
+                          (click)="$event.stopPropagation(); publishEvent(event.id)"
+                        >
+                          @if (actionLoading[event.id]) {
+                            <span class="spinner-border spinner-border-sm"></span>
+                          } @else {
+                            Yayınla
+                          }
+                        </button>
+                        <button
+                          class="btn btn-danger flex-grow-1"
+                          [disabled]="actionLoading[event.id]"
+                          (click)="$event.stopPropagation(); openCancelModal(event.id)"
+                        >
+                          @if (actionLoading[event.id]) {
+                            <span class="spinner-border spinner-border-sm"></span>
+                          } @else {
+                            Etkinliği İptal Et
+                          }
+                        </button>
+                      } @else if (event.status === 'PUBLISHED') {
+                        <button
+                          class="btn btn-warning flex-grow-1"
+                          [disabled]="actionLoading[event.id]"
+                          (click)="$event.stopPropagation(); unpublishEvent(event.id)"
+                        >
+                          @if (actionLoading[event.id]) {
+                            <span class="spinner-border spinner-border-sm"></span>
+                          } @else {
+                            Yayından Kaldır
+                          }
+                        </button>
+                        <button
+                          class="btn btn-danger flex-grow-1"
+                          [disabled]="actionLoading[event.id]"
+                          (click)="$event.stopPropagation(); openCancelModal(event.id)"
+                        >
+                          @if (actionLoading[event.id]) {
+                            <span class="spinner-border spinner-border-sm"></span>
+                          } @else {
+                            Etkinliği İptal Et
+                          }
+                        </button>
+                      } @else if (event.status === 'ONGOING') {
+                        <button
+                          class="btn btn-danger w-100"
+                          [disabled]="actionLoading[event.id]"
+                          (click)="$event.stopPropagation(); openCancelModal(event.id)"
+                        >
+                          @if (actionLoading[event.id]) {
+                            <span class="spinner-border spinner-border-sm"></span>
+                          } @else {
+                            Etkinliği İptal Et
+                          }
+                        </button>
+                      } @else if (
+                        event.status === 'CANCELED' ||
+                        event.status === 'COMPLETED' ||
+                        event.status === 'TIMEOUT'
+                      ) {
+                        <button
+                          class="btn btn-secondary w-100"
+                          [disabled]="actionLoading[event.id]"
+                          (click)="$event.stopPropagation(); openArchiveModal(event.id)"
+                        >
+                          @if (actionLoading[event.id]) {
+                            <span class="spinner-border spinner-border-sm"></span>
+                          } @else {
+                            <i class="bi bi-archive me-1"></i> Arşivle
+                          }
+                        </button>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      @if (pages().length > 1) {
+        <nav aria-label="Page navigation" class="mt-5">
+          <ul class="pagination justify-content-center">
+            @for (page of pages(); track page) {
+              <li class="page-item" [class.active]="page === activePage()">
+                <a class="page-link" role="button" (click)="loadEvents(page)">{{ page + 1 }}</a>
+              </li>
+            }
+          </ul>
+        </nav>
+      }
+    }
+  </div>
+</section>
+
+@if (showCancelModal()) {
+  <div class="modal show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.5)">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Etkinliği İptal Et</h5>
+          <button
+            type="button"
+            class="btn-close"
+            (click)="closeCancelModal()"
+            aria-label="Kapat"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-0">
+            Bu etkinliği iptal etmek istediğinize emin misiniz? Bu işlem geri alınamaz ve tüm
+            katılımcılar bilgilendirilir.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeCancelModal()">
+            Vazgeç
+          </button>
+          <button type="button" class="btn btn-danger" (click)="confirmCancel()">
+            Evet, İptal Et
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showArchiveModal()) {
+  <div class="modal show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.5)">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Etkinliği Arşivle</h5>
+          <button
+            type="button"
+            class="btn-close"
+            (click)="closeArchiveModal()"
+            aria-label="Kapat"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-0">
+            Bu etkinliği arşive kaldırmak istediğinize emin misiniz? Arşivlenen etkinlikler bu
+            sayfadan kaldırılır ve arşiv klasörüne taşınır.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeArchiveModal()">
+            Vazgeç
+          </button>
+          <button type="button" class="btn btn-primary" (click)="confirmArchive()">
+            Evet, Arşivle
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

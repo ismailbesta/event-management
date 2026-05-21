@@ -36,4 +36,16 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     @Query("SELECT e FROM Event e WHERE e.status IN :statuses AND (e.endDate < :today OR (e.endDate = :today AND e.endTime <= :nowTime))")
     List<Event> findEventsToComplete(@Param("statuses") List<EventStatus> statuses, @Param("today") LocalDate today, @Param("nowTime") LocalTime nowTime);
+
+    Page<Event> findByOwnerIdNotAndStatusIn(Long ownerId, List<EventStatus> statuses, Pageable pageable);
+
+    Page<Event> findByCategoryAndOwnerIdNotAndStatusIn(
+            EventCategory category,
+            Long ownerId,
+            List<EventStatus> statuses,
+            Pageable pageable
+    );
+
+    @Query("SELECT e FROM Event e WHERE e.status = :status AND (e.endDate < :today OR (e.endDate = :today AND e.endTime <= :nowTime))")
+    List<Event> findUnpublishedEventsToTimeout(@Param("status") EventStatus status, @Param("today") LocalDate today, @Param("nowTime") LocalTime nowTime);
 }

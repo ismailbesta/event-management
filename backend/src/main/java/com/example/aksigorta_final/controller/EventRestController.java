@@ -43,8 +43,9 @@ public class EventRestController {
     }
 
     @GetMapping("list")
-    public Page<EventResponseDto> listEvents(@RequestParam(defaultValue = "0") int page){
-        return eventService.eventList(page);
+    public Page<EventResponseDto> listEvents(@RequestParam(defaultValue = "0") int page, HttpServletRequest request){
+        User sessionUser = (User) request.getSession().getAttribute("user");
+        return eventService.eventList(page, sessionUser);
     }
 
     @GetMapping("/{eventId}")
@@ -111,9 +112,11 @@ public class EventRestController {
     @GetMapping("category/{categoryName}")
     public ResponseEntity getEventsByCategory(
             @PathVariable String categoryName,
-            @RequestParam(defaultValue = "0") int page) {
+            @RequestParam(defaultValue = "0") int page,
+            HttpServletRequest request) {
+        User sessionUser = (User) request.getSession().getAttribute("user");
         EventCategory category = EventCategory.valueOf(categoryName.toUpperCase());
-        Page<EventResponseDto> response = eventService.listEventByCategory(category, page);
+        Page<EventResponseDto> response = eventService.listEventByCategory(category, page, sessionUser);
         return ResponseEntity.ok().body(response);
     }
 
@@ -127,5 +130,11 @@ public class EventRestController {
     public Page<EventResponseDto> listArchivedEvents(@RequestParam(defaultValue = "0") int page, HttpServletRequest request){
         User sessionUser = (User) request.getSession().getAttribute("user");
         return eventService.listMyArchivedEvents(page, sessionUser);
+    }
+
+    @GetMapping("user-role/{eventId}")
+    public ResponseEntity getEventUserRole(@PathVariable Long eventId, HttpServletRequest request){
+        User sessionUser = (User) request.getSession().getAttribute("user");
+        return eventService.getUserEventRole(eventId, sessionUser);
     }
 }

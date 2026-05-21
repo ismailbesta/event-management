@@ -1,0 +1,102 @@
+<div class="container-fluid d-flex justify-content-center align-items-center min-vh-100">
+  <div class="card shadow-lg p-4" style="width: 100%; max-width: 450px">
+    <div
+      *ngIf="showErrorModal"
+      class="alert alert-danger d-flex align-items-center mb-4 shadow-sm"
+      role="alert"
+    >
+      <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+      <div><strong>Hata!</strong> {{ errorMessage }}</div>
+      <button
+        type="button"
+        class="btn-close ms-auto"
+        aria-label="Close"
+        (click)="closeErrorModal()"
+      ></button>
+    </div>
+    <h2 class="text-center mb-4">Kayıt Ol</h2>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <div class="mb-3">
+        <label for="name" class="form-label">Ad</label>
+        <input
+          type="text"
+          class="form-control"
+          id="name"
+          formControlName="name"
+          placeholder="Adınız"
+        />
+        <div
+          class="invalid-feedback"
+          *ngIf="registerForm.get('name')?.invalid && registerForm.get('name')?.touched"
+        >
+          Ad alanı zorunludur
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="surname" class="form-label">Soyad</label>
+        <input
+          type="text"
+          class="form-control"
+          id="surname"
+          formControlName="surname"
+          placeholder="Soyadınız"
+        />
+        <div
+          class="invalid-feedback"
+          *ngIf="registerForm.get('surname')?.invalid && registerForm.get('surname')?.touched"
+        >
+          Soyad alanı zorunludur
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="email" class="form-label">E-posta</label>
+        <input
+          type="email"
+          class="form-control"
+          id="email"
+          formControlName="email"
+          placeholder="E-posta adresiniz"
+        />
+        <div
+          class="invalid-feedback"
+          *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
+        >
+          Geçerli bir e-posta girin
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label">Şifre</label>
+        <input
+          type="password"
+          class="form-control"
+          id="password"
+          formControlName="password"
+          placeholder="Şifreniz"
+        />
+        <div
+          class="invalid-feedback"
+          *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+        >
+          Şifre en az 6 karakter olmalıdır
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100 mb-3" [disabled]="registerForm.invalid">
+        Kayıt Ol
+      </button>
+    </form>
+
+    <hr />
+
+    <div class="text-center">
+      <p class="mb-0">
+        Zaten hesabınız var mı?
+        <a routerLink="/" class="text-decoration-none">Giriş Yap</a>
+      </p>
+    </div>
+  </div>
+</div>
