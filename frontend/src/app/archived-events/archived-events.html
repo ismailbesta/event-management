@@ -34,7 +34,7 @@
       <div class="d-grid gap-4">
         @for (event of eventArray(); track event.id) {
           <div
-            class="card shadow-sm position-relative event-card"
+            class="card shadow position-relative event-card"
             [ngClass]="{
               'border-0': event.status === 'PUBLISHED',
               'border border-success border-2': event.status === 'ONGOING',

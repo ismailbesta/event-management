@@ -36,7 +36,7 @@
       <div class="d-grid gap-4">
         @for (event of eventArray(); track event.id) {
           <div
-            class="card shadow-sm position-relative event-card"
+            class="card shadow position-relative event-card"
             [ngClass]="{
               'border-0': event.status === 'PUBLISHED',
               'border border-success border-2': event.status === 'ONGOING',
@@ -57,7 +57,8 @@
               <div
                 class="d-flex justify-content-between align-items-start mb-3 position-relative z-3"
               >
-                <div class="d-flex flex-wrap gap-2">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                  <h3 class="h4 mb-0 pe-2">{{ event.name }}</h3>
                   <span class="badge text-bg-dark">{{ categoryLabel(event.category) }}</span>
                   <span
                     class="badge border"
@@ -68,7 +69,8 @@
                 </div>
 
                 <button
-                  class="btn btn-sm btn-outline-danger bg-white shadow-sm"
+                  type="button"
+                  class="btn btn-sm btn-outline-danger"
                   style="
                     border-radius: 50%;
                     width: 35px;
@@ -76,6 +78,7 @@
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                    flex-shrink: 0;
                   "
                   [disabled]="actionLoading[event.id]"
                   (click)="$event.stopPropagation(); openDeleteModal(event.id)"
@@ -91,7 +94,6 @@
 
               <div class="row g-4">
                 <div class="col-12 col-lg-8 d-flex flex-column">
-                  <h3 class="h4 mb-2">{{ event.name }}</h3>
                   <p class="text-secondary mb-4">{{ event.description }}</p>
 
                   <div class="d-flex flex-wrap gap-4 text-secondary small mt-auto">
@@ -143,61 +145,46 @@
                     <div class="d-flex gap-2">
                       @if (event.status === 'UNPUBLISHED') {
                         <button
+                          type="button"
                           class="btn btn-success flex-grow-1"
                           [disabled]="actionLoading[event.id]"
                           (click)="$event.stopPropagation(); publishEvent(event.id)"
                         >
-                          @if (actionLoading[event.id]) {
-                            <span class="spinner-border spinner-border-sm"></span>
-                          } @else {
-                            Yayınla
-                          }
+                          Yayınla
                         </button>
                         <button
+                          type="button"
                           class="btn btn-danger flex-grow-1"
                           [disabled]="actionLoading[event.id]"
                           (click)="$event.stopPropagation(); openCancelModal(event.id)"
                         >
-                          @if (actionLoading[event.id]) {
-                            <span class="spinner-border spinner-border-sm"></span>
-                          } @else {
-                            Etkinliği İptal Et
-                          }
+                          Etkinliği İptal Et
                         </button>
                       } @else if (event.status === 'PUBLISHED') {
                         <button
+                          type="button"
                           class="btn btn-warning flex-grow-1"
                           [disabled]="actionLoading[event.id]"
                           (click)="$event.stopPropagation(); unpublishEvent(event.id)"
                         >
-                          @if (actionLoading[event.id]) {
-                            <span class="spinner-border spinner-border-sm"></span>
-                          } @else {
-                            Yayından Kaldır
-                          }
+                          Yayından Kaldır
                         </button>
                         <button
+                          type="button"
                           class="btn btn-danger flex-grow-1"
                           [disabled]="actionLoading[event.id]"
                           (click)="$event.stopPropagation(); openCancelModal(event.id)"
                         >
-                          @if (actionLoading[event.id]) {
-                            <span class="spinner-border spinner-border-sm"></span>
-                          } @else {
-                            Etkinliği İptal Et
-                          }
+                          Etkinliği İptal Et
                         </button>
                       } @else if (event.status === 'ONGOING') {
                         <button
+                          type="button"
                           class="btn btn-danger w-100"
                           [disabled]="actionLoading[event.id]"
                           (click)="$event.stopPropagation(); openCancelModal(event.id)"
                         >
-                          @if (actionLoading[event.id]) {
-                            <span class="spinner-border spinner-border-sm"></span>
-                          } @else {
-                            Etkinliği İptal Et
-                          }
+                          Etkinliği İptal Et
                         </button>
                       } @else if (
                         event.status === 'CANCELED' ||
@@ -205,15 +192,12 @@
                         event.status === 'TIMEOUT'
                       ) {
                         <button
+                          type="button"
                           class="btn btn-secondary w-100"
                           [disabled]="actionLoading[event.id]"
                           (click)="$event.stopPropagation(); openArchiveModal(event.id)"
                         >
-                          @if (actionLoading[event.id]) {
-                            <span class="spinner-border spinner-border-sm"></span>
-                          } @else {
-                            <i class="bi bi-archive me-1"></i> Arşivle
-                          }
+                          <i class="bi bi-archive me-1"></i> Arşivle
                         </button>
                       }
                     </div>
@@ -243,7 +227,7 @@
 @if (showCancelModal()) {
   <div class="modal show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.5)">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content border-0 shadow-lg">
+      <div class="modal-content border-0 shadow">
         <div class="modal-header border-bottom-0">
           <h5 class="modal-title fw-bold">Etkinliği İptal Et</h5>
           <button
@@ -273,7 +257,7 @@
 @if (showArchiveModal()) {
   <div class="modal show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.5)">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content border-0 shadow-lg">
+      <div class="modal-content border-0 shadow">
         <div class="modal-header border-bottom-0">
           <h5 class="modal-title fw-bold">Etkinliği Arşivle</h5>
           <button
@@ -303,7 +287,7 @@
 @if (showDeleteModal()) {
   <div class="modal show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.5)">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content border-0 shadow-lg">
+      <div class="modal-content border-0 shadow">
         <div class="modal-header border-bottom-0">
           <h5 class="modal-title text-danger fw-bold">
             <i class="bi bi-exclamation-triangle-fill me-2"></i> Etkinliği Sil

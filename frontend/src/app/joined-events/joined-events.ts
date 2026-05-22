@@ -9,7 +9,7 @@ import { IEvents, Event, getEventCategoryLabel, getEventStatusLabel } from '../.
   selector: 'app-joined-events',
   imports: [CommonModule, RouterModule],
   templateUrl: './joined-events.html',
-  styleUrls: ['./joined-events.css'], // Kendi css dosyanı işaret ettiğinden emin ol
+  styleUrls: ['./joined-events.css'],
 })
 export class JoinedEvents implements OnInit {
   private http = inject(HttpClient);
@@ -41,7 +41,7 @@ export class JoinedEvents implements OnInit {
         },
         error: (error) => {
           console.error('Error loading joined events:', error);
-          this.loading.set(false);
+          this.loading.set(false); // Spinner'ı durdurmak için bunu tutuyoruz
         },
       });
   }
@@ -56,7 +56,7 @@ export class JoinedEvents implements OnInit {
           // HARİKA UX: Başarıyla ayrıldıktan sonra o etkinliği listeden anında uçuruyoruz!
           this.eventArray.update((events) => events.filter((e) => e.id !== eventId));
         },
-        error: (err) => console.error('Leave event error:', err),
+        error: (err) => console.error('Leave event error:', err), // Hata gösterme işini Global Interceptor yapacak
       });
   }
 

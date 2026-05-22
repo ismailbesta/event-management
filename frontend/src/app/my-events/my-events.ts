@@ -19,6 +19,7 @@ export class MyEvents implements OnInit {
   activePage = signal<number>(0);
   loading = signal<boolean>(false);
 
+  // Buton yükleniyor durumları
   actionLoading: { [key: number]: boolean } = {};
 
   // MODAL YÖNETİMİ İÇİN SİNYALLER

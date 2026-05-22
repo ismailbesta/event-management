@@ -285,6 +285,27 @@
 					"response": []
 				},
 				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/event/delete/9",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"event",
+								"delete",
+								"9"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "List",
 					"request": {
 						"method": "GET",
@@ -491,6 +512,27 @@
 									"key": "page",
 									"value": "0"
 								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getUserRoleForEvent",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/event/user-role/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"event",
+								"user-role",
+								"2"
 							]
 						}
 					},

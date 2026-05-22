@@ -4,8 +4,6 @@ import { Component, signal, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { finalize } from 'rxjs';
 import { Event, getEventCategoryLabel, getEventStatusLabel } from '../../models/ievents';
-
-// YENİ: Model klasöründen import ediyoruz
 import { Participant, ParticipantResponse } from '../../models/iparticipant';
 
 @Component({
@@ -21,18 +19,18 @@ export class EventDetail implements OnInit {
   userRole = signal<string | null>(null);
 
   isActionLoading = signal<boolean>(false);
+
+  // MODALLAR İÇİN SİNYALLER
   showCancelModal = signal<boolean>(false);
 
   // KATILIMCI MODALI İÇİN DEĞİŞKENLER
   showParticipantsModal = signal<boolean>(false);
   participantsLoading = signal<boolean>(false);
-  participants = signal<Participant[]>([]); // Import edilen modeli kullanıyor
+  participants = signal<Participant[]>([]);
   participantPage = signal<number>(0);
   participantTotalPages = signal<number>(0);
 
   private eventId: number | null = null;
-
-  // ... (Kodun geri kalanı tamamen aynı kalacak, hiçbir şeyi değiştirmene gerek yok)
 
   constructor(
     private route: ActivatedRoute,
@@ -63,6 +61,7 @@ export class EventDetail implements OnInit {
     return ['PUBLISHED', 'ONGOING'].includes(status);
   }
 
+  // --- İPTAL MODALI ---
   openCancelModal() {
     this.showCancelModal.set(true);
   }
@@ -103,6 +102,21 @@ export class EventDetail implements OnInit {
       });
   }
 
+  unpublishEvent() {
+    if (!this.eventId) return;
+
+    this.isActionLoading.set(true);
+    this.http
+      .patch(`http://localhost:8080/event/unpublish/${this.eventId}`, null, {
+        withCredentials: true,
+      })
+      .pipe(finalize(() => this.isActionLoading.set(false)))
+      .subscribe({
+        next: () => this.loadEvent(this.eventId!),
+        error: (err) => console.error('Error unpublishing event:', err), // Hata gösterme işini Global Interceptor yapacak
+      });
+  }
+
   joinEvent() {
     if (!this.eventId || this.isActionLoading()) return;
 
@@ -113,7 +127,7 @@ export class EventDetail implements OnInit {
       .subscribe({
         next: () => {
           this.userRole.set('PARTICIPANT');
-          this.loadEvent(this.eventId!); // Katılımcı sayısını güncellemek için etkinliği tekrar çek
+          this.loadEvent(this.eventId!);
         },
         error: (error) => console.error('Error joining event:', error),
       });
@@ -129,17 +143,17 @@ export class EventDetail implements OnInit {
       .subscribe({
         next: () => {
           this.userRole.set('GUEST');
-          this.loadEvent(this.eventId!); // Katılımcı sayısını güncellemek için etkinliği tekrar çek
+          this.loadEvent(this.eventId!);
         },
         error: (error) => console.error('Error leaving event:', error),
       });
   }
 
-  // --- YENİ: KATILIMCI MODALI YÖNETİMİ ---
+  // --- KATILIMCI MODALI YÖNETİMİ ---
   openParticipantsModal() {
     if (!this.eventId) return;
     this.showParticipantsModal.set(true);
-    this.loadParticipants(0); // İlk sayfayı çek
+    this.loadParticipants(0);
   }
 
   closeParticipantsModal() {
@@ -167,7 +181,7 @@ export class EventDetail implements OnInit {
         },
         error: (err) => {
           console.error('Katılımcılar yüklenirken hata:', err);
-          this.participantsLoading.set(false);
+          this.participantsLoading.set(false); // Spinner'ı durdurmak için bunu tutuyoruz
         },
       });
   }
@@ -182,21 +196,6 @@ export class EventDetail implements OnInit {
       .subscribe({
         next: (response) => this.eventItem.set(response),
         error: () => this.router.navigate(['/events']),
-      });
-  }
-
-  unpublishEvent() {
-    if (!this.eventId) return;
-
-    this.isActionLoading.set(true);
-    this.http
-      .patch(`http://localhost:8080/event/unpublish/${this.eventId}`, null, {
-        withCredentials: true,
-      })
-      .pipe(finalize(() => this.isActionLoading.set(false)))
-      .subscribe({
-        next: () => this.loadEvent(this.eventId!),
-        error: (error) => console.error('Error unpublishing event:', error),
       });
   }
 

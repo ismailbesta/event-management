@@ -17,8 +17,8 @@
         </div>
       </div>
     } @else {
-      <div class="card border-0 shadow-sm event-create-card">
-        <div class="card-body p-4">
+      <div class="card border-0 shadow event-create-card w-100">
+        <div class="card-body p-4 p-md-5">
           @if (errorMessage()) {
             <div class="alert alert-danger d-flex align-items-center mb-4" role="alert">
               <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
@@ -108,14 +108,14 @@
               </div>
 
               <div class="col-12">
-                <div class="event-create-panel">
+                <div class="event-create-panel border rounded-3 p-4 bg-light">
                   <div class="row g-3">
                     <div class="col-12 col-md-6">
                       <label for="startDate" class="form-label">Başlangıç tarihi</label>
                       <input
                         id="startDate"
                         type="date"
-                        class="form-control"
+                        class="form-control bg-white"
                         formControlName="startDate"
                         [class.is-invalid]="
                           control('startDate')?.invalid && control('startDate')?.touched
@@ -128,7 +128,7 @@
                       <input
                         id="startTime"
                         type="time"
-                        class="form-control"
+                        class="form-control bg-white"
                         formControlName="startTime"
                         [class.is-invalid]="
                           control('startTime')?.invalid && control('startTime')?.touched
@@ -141,7 +141,7 @@
                       <input
                         id="endDate"
                         type="date"
-                        class="form-control"
+                        class="form-control bg-white"
                         formControlName="endDate"
                         [class.is-invalid]="
                           control('endDate')?.invalid && control('endDate')?.touched
@@ -154,7 +154,7 @@
                       <input
                         id="endTime"
                         type="time"
-                        class="form-control"
+                        class="form-control bg-white"
                         formControlName="endTime"
                         [class.is-invalid]="
                           control('endTime')?.invalid && control('endTime')?.touched
@@ -164,15 +164,16 @@
                     </div>
                   </div>
                   <p class="text-body-secondary small mt-3 mb-0">
-                    Aynı gün için bitiş saati başlangıç saatinden erken olamaz.
+                    <i class="bi bi-info-circle me-1"></i> Aynı gün için bitiş saati başlangıç
+                    saatinden erken olamaz.
                   </p>
                 </div>
               </div>
             </div>
 
-            <div class="d-flex flex-wrap gap-2 justify-content-end mt-4">
-              <a class="btn btn-outline-secondary" routerLink="/my-events">İptal</a>
-              <button type="submit" class="btn btn-primary" [disabled]="submitting()">
+            <div class="d-flex flex-wrap gap-2 justify-content-end mt-4 pt-2">
+              <a class="btn btn-outline-secondary px-4" routerLink="/my-events">İptal</a>
+              <button type="submit" class="btn btn-primary px-4" [disabled]="submitting()">
                 {{ submitting() ? 'Kaydediliyor...' : 'Değişiklikleri Kaydet' }}
               </button>
             </div>
