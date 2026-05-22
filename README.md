@@ -2,7 +2,7 @@
 
 ## Proje Açıklaması
 
-Bu proje, Spring Boot tabanlı bir backend ve Angular tabanlı bir frontend ile geliştirilmiş tam yığın bir uygulamadır. Uygulamada etkinlik yönetimi, kullanıcı işlemleri ve REST API üzerinden veri alışverişi gibi temel özellikler yer alır.
+Bu proje, Spring Boot tabanlı bir backend ve Angular tabanlı bir frontend ile geliştirilmiş bir uygulamadır. Uygulamada etkinlik yönetimi, kullanıcı işlemleri ve REST API üzerinden veri alışverişi gibi temel özellikler yer alır.
 
 ## Kullanılan Teknolojiler
 
@@ -10,13 +10,13 @@ Bu proje, Spring Boot tabanlı bir backend ve Angular tabanlı bir frontend ile 
 - Veritabanı: H2 Database
 - API Dokümantasyonu: Springdoc OpenAPI / Swagger
 - Yardımcı Kütüphaneler: Lombok, ModelMapper, jBCrypt
-- Frontend: Angular 21, TypeScript, RxJS
+- Frontend: Angular 21, TypeScript,
 
 ## Kurulum Adımları
 
 1. Projeyi bilgisayarınıza alın ve kök dizine geçin.
 2. Backend ve frontend için gerekli bağımlılıkların yüklü olduğundan emin olun.
-3. Backend için Java 17, frontend için Node.js ve npm kurulu olmalıdır.
+3. Backend için Java 17, frontend için angular cli kurulu olmalıdır.
 
 ## Backend Çalıştırma
 
