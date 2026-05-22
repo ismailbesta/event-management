@@ -51,7 +51,7 @@ npm start
 Backend çalıştıktan sonra Swagger arayüzüne şu adresten ulaşabilirsiniz:
 
 ```text
-http://localhost:8080/swagger-ui
+http://localhost:8080/swagger-ui/index.html
 ```
 
 ## Veritabanı Bilgileri
