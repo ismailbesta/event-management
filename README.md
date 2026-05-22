@@ -20,8 +20,6 @@ Bu proje, Spring Boot tabanlı bir backend ve Angular tabanlı bir frontend ile 
 
 ## Backend Çalıştırma
 
-## 🚀 Backend Çalıştırma
-
 Projenin backend tarafını yerel ortamınızda çalıştırmak için aşağıdaki adımları izleyin:
 
 1. Terminalinizde `backend/` klasörüne gidin.
