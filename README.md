@@ -20,14 +20,18 @@ Bu proje, Spring Boot tabanlı bir backend ve Angular tabanlı bir frontend ile 
 
 ## Backend Çalıştırma
 
-1. `backend` klasörüne geçin.
-2. Uygulamayı çalıştırın:
+## 🚀 Backend Çalıştırma
 
-```bash
-./mvnw spring-boot:run
-```
+Projenin backend tarafını yerel ortamınızda çalıştırmak için aşağıdaki adımları izleyin:
 
-3. Backend varsayılan olarak `http://localhost:8080` adresinde çalışır.
+1. Terminalinizde `backend/` klasörüne gidin.
+2. Projeyi tercih ettiğiniz bir Java IDE'sinde (IntelliJ IDEA, Eclipse, VS Code vb.) açın.
+3. Maven (veya Wrapper) kullanarak gerekli bağımlılıkları indirin ve projeyi derleyin:
+   ```bash
+   mvn clean install
+   ```
+3. Projeyi başlatmak için ana sınıf olan com.works.backend.BackendApplication sınıfını çalıştırın.
+4. Backend varsayılan olarak `http://localhost:8080` adresinde çalışır.
 
 ## Frontend Çalıştırma
 
