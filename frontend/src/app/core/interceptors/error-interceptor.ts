@@ -8,6 +8,16 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((err: HttpErrorResponse) => {
+      // İSTİSNA (BYPASS) DURUMLARI:
+      if (
+        req.url.includes('/login') ||
+        req.url.includes('/register') ||
+        req.url.includes('/user/control') || // Session kontrolünü de yoksay
+        err.status === 401 // Yetki hatalarını genel olarak yoksay
+      ) {
+        return throwError(() => err);
+      }
+
       // Backend'den fırlatılan özel mesajı veya varsayılan mesajı al
       let errorMsg = 'Sunucu ile iletişimde bir hata oluştu.';
 
