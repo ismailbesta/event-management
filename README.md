@@ -2,7 +2,7 @@
 
 ## Proje Açıklaması
 
-Bu proje, Spring Boot tabanlı bir backend ve Angular tabanlı bir frontend ile geliştirilmiş tam yığın bir uygulamadır. Uygulamada etkinlik yönetimi, kullanıcı işlemleri ve REST API üzerinden veri alışverişi gibi temel özellikler yer alır.
+Bu proje, Spring Boot tabanlı bir backend ve Angular tabanlı bir frontend ile geliştirilmiş bir uygulamadır. Uygulamada etkinlik yönetimi, kullanıcı işlemleri ve REST API üzerinden veri alışverişi gibi temel özellikler yer alır.
 
 ## Kullanılan Teknolojiler
 
@@ -10,24 +10,26 @@ Bu proje, Spring Boot tabanlı bir backend ve Angular tabanlı bir frontend ile 
 - Veritabanı: H2 Database
 - API Dokümantasyonu: Springdoc OpenAPI / Swagger
 - Yardımcı Kütüphaneler: Lombok, ModelMapper, jBCrypt
-- Frontend: Angular 21, TypeScript, RxJS
+- Frontend: Angular 21, TypeScript,
 
 ## Kurulum Adımları
 
 1. Projeyi bilgisayarınıza alın ve kök dizine geçin.
 2. Backend ve frontend için gerekli bağımlılıkların yüklü olduğundan emin olun.
-3. Backend için Java 17, frontend için Node.js ve npm kurulu olmalıdır.
+3. Backend için Java 17, frontend için angular cli kurulu olmalıdır.
 
 ## Backend Çalıştırma
 
-1. `backend` klasörüne geçin.
-2. Uygulamayı çalıştırın:
+Projenin backend tarafını yerel ortamınızda çalıştırmak için aşağıdaki adımları izleyin:
 
-```bash
-./mvnw spring-boot:run
-```
-
-3. Backend varsayılan olarak `http://localhost:8080` adresinde çalışır.
+1. Terminalinizde `backend/` klasörüne gidin.
+2. Projeyi tercih ettiğiniz bir Java IDE'sinde (IntelliJ IDEA, Eclipse, VS Code vb.) açın.
+3. Maven (veya Wrapper) kullanarak gerekli bağımlılıkları indirin ve projeyi derleyin:
+   ```bash
+   mvn clean install
+   ```
+3. Projeyi başlatmak için ana sınıf olan com.works.backend.BackendApplication sınıfını çalıştırın.
+4. Backend varsayılan olarak `http://localhost:8080` adresinde çalışır.
 
 ## Frontend Çalıştırma
 
@@ -51,7 +53,7 @@ npm start
 Backend çalıştıktan sonra Swagger arayüzüne şu adresten ulaşabilirsiniz:
 
 ```text
-http://localhost:8080/swagger-ui
+http://localhost:8080/swagger-ui/index.html
 ```
 
 ## Veritabanı Bilgileri
